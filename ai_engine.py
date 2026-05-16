@@ -1,8 +1,9 @@
 import random
 import json
 import urllib.request
+import os
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_MODEL   = "llama3-8b-8192"
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 

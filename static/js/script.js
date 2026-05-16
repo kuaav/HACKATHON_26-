@@ -109,6 +109,8 @@ async function handleLogin() {
     const data = await res.json();
     if (!res.ok) {
       showError(errorEl, data.error || 'Login failed.');
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
       return;
     }
     AppState.isLoggedIn = true;
@@ -602,7 +604,7 @@ function startVoiceScan() {
         }
       }, 100);
     };
-
+    rec.maxAlternatives = 1;
     return rec;
   }
 
