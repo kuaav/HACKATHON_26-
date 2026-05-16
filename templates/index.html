@@ -3,55 +3,34 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AbilityBridge — Inclusive Career Platform</title>
+    <title>AbilityBridge - Inclusive Career Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
 
-  <!-- ===================== SIDEBAR ===================== -->
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
     <div class="sidebar-logo">
-      <span class="logo-icon" aria-hidden="true"></span>
+      <img src="logo.png" alt="AbilityBridge Logo" class="logo-image" />
       <span class="logo-text">AbilityBridge</span>
     </div>
 
     <nav class="sidebar-nav" id="main-nav">
-      <!-- Pre-login nav (default) -->
       <div id="nav-pre-login">
-        <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Home
-        </a>
-        <a href="#" class="nav-item" data-page="jobs" onclick="navigate('jobs',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Jobs
-        </a>
-        <a href="#" class="nav-item nav-cta" data-page="login" onclick="navigate('login',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Get Started
-        </a>
+        <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',event)"><span class="nav-icon" aria-hidden="true">◎</span> Home</a>
+        <a href="#" class="nav-item" data-page="jobs" onclick="navigate('jobs',event)"><span class="nav-icon" aria-hidden="true">◈</span> Jobs</a>
+        <a href="#" class="nav-item nav-cta" data-page="login" onclick="navigate('login',event)"><span class="nav-icon" aria-hidden="true">→</span> Get Started</a>
       </div>
-
-      <!-- Post-login nav (hidden by default) -->
       <div id="nav-post-login" class="hidden">
-        <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Home
-        </a>
-        <a href="#" class="nav-item" data-page="jobs" onclick="navigate('jobs',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Jobs
-        </a>
-        <a href="#" class="nav-item" data-page="profile" onclick="navigate('profile',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Profile
-        </a>
-        <a href="#" class="nav-item" data-page="assessments" onclick="navigate('assessments',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Assessments
-        </a>
-        <a href="#" class="nav-item" data-page="accessibility" onclick="navigate('accessibility',event)">
-          <span class="nav-icon" aria-hidden="true"></span> Accessibility
-        </a>
-        <a href="#" class="nav-item nav-logout" onclick="handleLogout(event)">
-          <span class="nav-icon" aria-hidden="true"></span> Logout
-        </a>
+        <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',event)"><span class="nav-icon" aria-hidden="true">◎</span> Home</a>
+        <a href="#" class="nav-item" data-page="jobs" onclick="navigate('jobs',event)"><span class="nav-icon" aria-hidden="true">◈</span> Jobs</a>
+        <a href="#" class="nav-item" data-page="profile" onclick="navigate('profile',event)"><span class="nav-icon" aria-hidden="true">◉</span> Profile</a>
+        <a href="#" class="nav-item" data-page="assessments" onclick="navigate('assessments',event)"><span class="nav-icon" aria-hidden="true">◫</span> Assessments</a>
+        <a href="#" class="nav-item" data-page="accessibility" onclick="navigate('accessibility',event)"><span class="nav-icon" aria-hidden="true">◌</span> Accessibility</a>
+        <a href="#" class="nav-item nav-logout" onclick="handleLogout(event)"><span class="nav-icon" aria-hidden="true">←</span> Logout</a>
       </div>
     </nav>
 
@@ -60,65 +39,51 @@
     </div>
   </aside>
 
-  <!-- ===================== MAIN CONTENT ===================== -->
+  <!-- MAIN CONTENT -->
   <main class="main-content" id="main-content">
 
-    <!-- ========== PAGE: HOME ========== -->
+    <!-- PAGE: HOME -->
     <div id="page-home" class="page active" role="main" aria-label="Home">
-      <!-- Hero -->
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false" aria-label="Read this page aloud">🔊 Read Aloud</button>
+        <span class="tts-hint">Alt+R to toggle</span>
+      </div>
       <section class="hero-section">
         <div class="hero-badge">Inclusive by design</div>
-        <h1 class="hero-title">
-          Your abilities are<br/>
-          <em>your advantage.</em>
-        </h1>
-        <p class="hero-subtitle">
-          AbilityBridge is a career platform built around your strengths — not your limitations. 
-          Discover opportunities, build your profile, and find workplaces that truly include you.
-        </p>
+        <h1 class="hero-title">Your abilities are<br/><em>your advantage.</em></h1>
+        <p class="hero-subtitle">AbilityBridge is a career platform built around your strengths - not your limitations. Discover opportunities, build your profile, and find workplaces that truly include you.</p>
         <div class="hero-actions">
-          <button class="btn-primary" onclick="navigate('login', event)" aria-label="Get started with AbilityBridge">
-            Create Your Profile
-          </button>
-          <button class="btn-ghost" onclick="navigate('jobs', event)" aria-label="Browse job listings">
-            Browse Jobs
-          </button>
-        </div>
-        <div class="hero-stats">
-          <div class="stat-pill"><strong>2,400+</strong> Inclusive Employers</div>
-          <div class="stat-pill"><strong>98%</strong> Accommodation Rate</div>
-          <div class="stat-pill"><strong>PWD Act</strong> Compliant</div>
+          <button class="btn-primary" onclick="navigate('login', event)" aria-label="Get started with AbilityBridge">Create Your Profile</button>
+          <button class="btn-ghost" onclick="navigate('jobs', event)" aria-label="Browse job listings">Browse Jobs</button>
         </div>
       </section>
 
-      <!-- Features -->
       <section class="features-section" aria-labelledby="features-heading">
         <h2 id="features-heading" class="section-title">Built around how <em>you</em> work</h2>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-icon" aria-hidden="true"></div>
+            <div class="feature-icon" aria-hidden="true">⬡</div>
             <h3>Ability Profiling</h3>
-            <p>We identify your unique strengths across voice, text, and visual modalities — building a profile that showcases what you excel at.</p>
+            <p>We identify your unique strengths across voice and text modalities - building a profile that showcases what you excel at.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon" aria-hidden="true"></div>
+            <div class="feature-icon" aria-hidden="true">◈</div>
             <h3>Inclusive Job Matching</h3>
-            <p>Every job listing is scored for accessibility, accommodation readiness, and neurodivergent-friendly environments.</p>
+            <p>Every listing is scored for accessibility, accommodation readiness, and neurodivergent-friendly environments.</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon" aria-hidden="true"></div>
+            <div class="feature-icon" aria-hidden="true">◉</div>
             <h3>Adaptive Assessments</h3>
-            <p>Skills evaluations designed with flexible timing, reduced sensory load, and multiple response formats — so you can show your best.</p>
+            <p>Skills evaluations with flexible timing, reduced sensory load, and multiple response formats - so you can show your best.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon" aria-hidden="true">◌</div>
-            <h3>Accommodation Letters</h3>
-            <p>AI-assisted drafts of professional accommodation requests, compliant with Malaysia's Persons with Disabilities Act 2008.</p>
+            <h3>Job Application Letters</h3>
+            <p>AI-assisted cover letters personalised from your ability profile, ready to send with one click.</p>
           </div>
         </div>
       </section>
 
-      <!-- CTA -->
       <section class="cta-section">
         <div class="cta-card">
           <div>
@@ -130,39 +95,73 @@
       </section>
     </div>
 
-    <!-- ========== PAGE: LOGIN ========== -->
+    <!-- PAGE: LOGIN -->
     <div id="page-login" class="page hidden" role="main" aria-label="Sign in">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
       <div class="auth-wrapper">
         <div class="auth-card">
           <div class="auth-header">
-            <span class="logo-icon-sm" aria-hidden="true">⬡</span>
+            <img src="logo.png" alt="AbilityBridge Logo" class="logo-image" />
             <h1>Welcome back</h1>
             <p>Sign in to your AbilityBridge account</p>
           </div>
-
-          <div id="login-form-section">
-            <div class="form-group">
-              <label for="login-email">Email or Username</label>
-              <input type="text" id="login-email" placeholder="you@example.com" autocomplete="username" aria-required="true" />
-            </div>
-            <div class="form-group">
-              <label for="login-password">Password</label>
-              <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" aria-required="true" />
-            </div>
-            <div id="login-error" class="form-error hidden" role="alert" aria-live="polite">
-              Invalid credentials. Please try again.
-            </div>
-            <button class="btn-primary btn-full" onclick="handleLogin()" id="login-btn">
-              Sign In
-            </button>
-            <p class="auth-hint">New here? <a href="#" onclick="showOnboarding(event)">Create a free account</a></p>
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" placeholder="you@example.com" autocomplete="username" aria-required="true" />
           </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" aria-required="true" />
+          </div>
+          <div id="login-error" class="form-error hidden" role="alert" aria-live="polite"></div>
+          <button class="btn-primary btn-full" onclick="handleLogin()" id="login-btn">Sign In</button>
+          <p class="auth-hint">New here? <a href="#" onclick="showSignup(event)">Create a free account →</a></p>
         </div>
       </div>
     </div>
 
-    <!-- ========== PAGE: ONBOARDING / PROFILE CREATION ========== -->
-    <div id="page-onboarding" class="page hidden" role="main" aria-label="Create your profile">
+    <!-- PAGE: SIGN UP -->
+    <div id="page-signup" class="page hidden" role="main" aria-label="Create account">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-header">
+            <span class="logo-icon-sm" aria-hidden="true">⬡</span>
+            <h1>Create your account</h1>
+            <p>Join AbilityBridge - it's free and takes 2 minutes</p>
+          </div>
+          <div class="form-group">
+            <label for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" placeholder="Your full name" autocomplete="name" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signup-email">Email Address</label>
+            <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Create Password</label>
+            <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signup-confirm">Confirm Password</label>
+            <input type="password" id="signup-confirm" placeholder="Repeat your password" autocomplete="new-password" aria-required="true" />
+          </div>
+          <div id="signup-error" class="form-error hidden" role="alert" aria-live="polite"></div>
+          <button class="btn-primary btn-full" onclick="handleSignup()" id="signup-btn">Create Account</button>
+          <p class="auth-hint">Already have an account? <a href="#" onclick="navigate('login',event)">Sign in →</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: ONBOARDING -->
+    <div id="page-onboarding" class="page hidden" role="main" aria-label="Complete your profile">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
       <div class="onboarding-wrapper">
         <div class="onboarding-header">
           <div class="step-indicator" aria-label="Step 1 of 2">
@@ -170,29 +169,18 @@
             <span class="step-line"></span>
             <span class="step">2</span>
           </div>
-          <h1>Let's build your profile</h1>
+          <h1>Tell us about yourself</h1>
           <p>This helps us match you with roles and environments where you'll thrive.</p>
         </div>
-
         <div class="onboarding-card" id="onboarding-step-1">
-          <h2>About you</h2>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="ob-name">Full Name</label>
-              <input type="text" id="ob-name" placeholder="Your full name" autocomplete="name" />
-            </div>
-            <div class="form-group">
-              <label for="ob-email">Email Address</label>
-              <input type="email" id="ob-email" placeholder="you@example.com" autocomplete="email" />
-            </div>
-          </div>
+          <h2>Professional background</h2>
           <div class="form-group">
             <label for="ob-education">Education & Background</label>
-            <textarea id="ob-education" placeholder="e.g. Bachelor of IT, UTP — Computer Science background, 2 years self-taught UI design..." rows="3"></textarea>
+            <textarea id="ob-education" placeholder="e.g. Bachelor of IT, UTP - Computer Science background, 2 years self-taught UI design..." rows="3"></textarea>
           </div>
           <div class="form-group">
             <label for="ob-skills">Strengths & Skills</label>
-            <textarea id="ob-skills" placeholder="e.g. Strong pattern recognition, detail-oriented, excellent written communication, systems thinking..." rows="3"></textarea>
+            <textarea id="ob-skills" placeholder="e.g. Strong pattern recognition, detail-oriented, excellent written communication..." rows="3"></textarea>
           </div>
           <div class="form-group">
             <label for="ob-interests">Interests</label>
@@ -210,11 +198,9 @@
           </div>
           <button class="btn-primary" onclick="nextOnboardingStep()">Continue →</button>
         </div>
-
         <div class="onboarding-card hidden" id="onboarding-step-2">
           <h2>Your accessibility preferences</h2>
-          <p class="form-hint">This helps us tailor your experience and show employers how best to support you.</p>
-
+          <p class="form-hint">Helps us tailor your experience and show employers how best to support you.</p>
           <div class="form-group">
             <label>Accessibility needs <span class="optional">(select all that apply)</span></label>
             <div class="checkbox-grid">
@@ -228,7 +214,6 @@
               <label class="checkbox-item"><input type="checkbox" value="flexible-timing" /> Flexible timing for tasks</label>
             </div>
           </div>
-
           <div class="form-group">
             <label for="ob-comm">Preferred Communication Style</label>
             <select id="ob-comm">
@@ -239,7 +224,6 @@
               <option value="flexible">Flexible / depends on context</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="ob-workplace">Ideal Workplace Environment</label>
             <select id="ob-workplace">
@@ -250,49 +234,63 @@
               <option value="office-open">Office (open, collaborative)</option>
             </select>
           </div>
-
           <div class="form-actions">
             <button class="btn-ghost" onclick="prevOnboardingStep()">← Back</button>
-            <button class="btn-primary" onclick="completeOnboarding()">Create My Profile</button>
+            <button class="btn-primary" onclick="completeOnboarding()">Finish Setup →</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ========== PAGE: PROFILE DASHBOARD ========== -->
+    <!-- PAGE: PROFILE -->
     <div id="page-profile" class="page hidden" role="main" aria-label="Your profile">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
       <div class="page-header">
         <div>
           <h1 id="profile-greeting">Your Ability Profile</h1>
-          <p class="page-subtitle">Multimodal Ability Profile — Updated today</p>
+          <p class="page-subtitle">Multimodal Ability Profile - Updated today</p>
         </div>
-        <div class="profile-progress-ring" aria-label="Profile completion 75%">
+        <div class="profile-progress-ring" aria-label="Profile completion">
           <svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
             <circle cx="30" cy="30" r="25" fill="none" stroke="var(--border)" stroke-width="4"/>
             <circle cx="30" cy="30" r="25" fill="none" stroke="var(--accent)" stroke-width="4"
-              stroke-dasharray="157" stroke-dashoffset="39" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+              stroke-dasharray="157" stroke-dashoffset="39" stroke-linecap="round" transform="rotate(-90 30 30)" id="profile-ring-fill"/>
           </svg>
-          <span class="ring-label">75%</span>
+          <span class="ring-label" id="profile-ring-pct">75%</span>
         </div>
       </div>
 
       <div class="dashboard-grid">
-        <!-- Strengths -->
         <div class="dash-card span-2">
           <div class="card-header">
             <h2>Strengths & Capabilities</h2>
-            <button class="btn-tag" onclick="openProfilingModal()">+ Add via AI Scan</button>
+            <button class="btn-tag" onclick="openProfilingModal()">+ AI Ability Scan</button>
           </div>
           <div class="tags-row" id="profile-strengths-tags">
             <span class="tag-pill">Detail-oriented</span>
             <span class="tag-pill">Visual pattern recognition</span>
-            <span class="tag-pill">Hyper-focus</span>
             <span class="tag-pill">Analytical thinking</span>
             <span class="tag-pill">Written communication</span>
           </div>
+          <div id="profile-ai-note" class="hidden" style="margin-top:1rem;padding:0.75rem;background:var(--accent-light);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--accent)">
+            ✓ AI Scan complete - profile updated
+          </div>
         </div>
 
-        <!-- Communication Prefs -->
+        <div class="dash-card" id="profile-assessment-card" style="display:none">
+          <div class="card-header">
+            <h2>Assessment Results</h2>
+            <button class="btn-tag" onclick="navigate('assessments',event)">Take More →</button>
+          </div>
+          <div id="profile-assessment-scores" class="style-bars" style="margin-top:0.75rem"></div>
+          <div id="profile-assessment-overall" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:0.75rem">
+            <div style="font-size:1.6rem;font-weight:700;color:var(--accent)" id="profile-overall-pct">-</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary)">Overall assessment average</div>
+          </div>
+        </div>
+
         <div class="dash-card">
           <h2>Communication Style</h2>
           <div class="pref-list" id="profile-comm-display">
@@ -302,7 +300,6 @@
           </div>
         </div>
 
-        <!-- Accessibility Prefs -->
         <div class="dash-card">
           <h2>Accessibility Preferences</h2>
           <div class="pref-list" id="profile-access-display">
@@ -312,37 +309,19 @@
           </div>
         </div>
 
-        <!-- Learning Style -->
         <div class="dash-card">
-          <h2>Learning & Working Style</h2>
-          <div class="style-bars">
-            <div class="style-bar-row">
-              <span>Focus depth</span>
-              <div class="bar-track"><div class="bar-fill" style="width:88%"></div></div>
-              <span class="bar-val">88</span>
-            </div>
-            <div class="style-bar-row">
-              <span>Visual processing</span>
-              <div class="bar-track"><div class="bar-fill" style="width:92%"></div></div>
-              <span class="bar-val">92</span>
-            </div>
-            <div class="style-bar-row">
-              <span>Verbal communication</span>
-              <div class="bar-track"><div class="bar-fill" style="width:65%"></div></div>
-              <span class="bar-val">65</span>
-            </div>
-            <div class="style-bar-row">
-              <span>Structured tasks</span>
-              <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
-              <span class="bar-val">78</span>
-            </div>
+          <h2>Working Style</h2>
+          <div class="style-bars" id="profile-style-bars">
+            <div class="style-bar-row"><span>Focus depth</span><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><span class="bar-val">88</span></div>
+            <div class="style-bar-row"><span>Visual processing</span><div class="bar-track"><div class="bar-fill" style="width:92%"></div></div><span class="bar-val">92</span></div>
+            <div class="style-bar-row"><span>Verbal communication</span><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div><span class="bar-val">65</span></div>
+            <div class="style-bar-row"><span>Structured tasks</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div><span class="bar-val">78</span></div>
           </div>
         </div>
 
-        <!-- Workplace Prefs -->
         <div class="dash-card">
           <h2>Workplace Environment</h2>
-          <div class="env-grid">
+          <div class="env-grid" id="profile-env-grid">
             <div class="env-chip active">Remote-first</div>
             <div class="env-chip active">Quiet spaces</div>
             <div class="env-chip">Async culture</div>
@@ -352,7 +331,6 @@
           </div>
         </div>
 
-        <!-- AI Recommendations -->
         <div class="dash-card span-2 ai-reco-card">
           <div class="card-header">
             <h2>AI Recommendations</h2>
@@ -362,104 +340,59 @@
             <div class="reco-item">
               <span class="reco-icon" aria-hidden="true">◈</span>
               <div>
-                <strong>Strong match: Data Analyst roles</strong>
-                <p>Your visual processing and detail-orientation align well with data roles. 3 open positions match your profile.</p>
+                <strong>Strong match: Data & Research roles</strong>
+                <p>Your detail-orientation and analytical strengths align well with data and research positions.</p>
               </div>
               <button class="btn-tag" onclick="navigate('jobs',event)">View →</button>
             </div>
             <div class="reco-item">
-              <span class="reco-icon" aria-hidden="true"></span>
+              <span class="reco-icon" aria-hidden="true">◎</span>
               <div>
-                <strong>Complete your assessments</strong>
-                <p>Finishing 2 more assessments will raise your profile match score by ~12%.</p>
+                <strong>Take an Assessment</strong>
+                <p>Complete pattern recognition or reasoning to strengthen your profile score.</p>
               </div>
               <button class="btn-tag" onclick="navigate('assessments',event)">Start →</button>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Multimodal Profiling Modal -->
-      <div id="profiling-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-card">
-          <button class="modal-close" onclick="closeProfilingModal()" aria-label="Close dialog">×</button>
-          <h2 id="modal-title">AI Ability Scan</h2>
-          <p>Choose your preferred interaction mode for profiling.</p>
-
-          <div class="modal-tabs" role="tablist">
-            <button role="tab" aria-selected="true" class="modal-tab active" onclick="switchModalTab('voice', this)">Voice</button>
-            <button role="tab" aria-selected="false" class="modal-tab" onclick="switchModalTab('camera', this)">Camera</button>
-            <button role="tab" aria-selected="false" class="modal-tab" onclick="switchModalTab('text', this)">Text</button>
-          </div>
-
-          <!-- Voice tab -->
-          <div id="modal-voice" class="modal-tab-content">
-            <div class="voice-visualizer" aria-live="polite" aria-label="Microphone status">
-              <div class="voice-ring" id="voice-ring"></div>
-              <span id="voice-status-text">Press to start speaking</span>
-            </div>
-            <button class="btn-primary btn-full" id="btn-scan-voice" onclick="startScan('voice')">
-              🎙 Start Voice Scan
-            </button>
-          </div>
-
-          <!-- Camera tab -->
-          <div id="modal-camera" class="modal-tab-content hidden">
-            <div class="camera-preview" aria-label="Camera preview area">
-              <div class="camera-guide" id="camera-guide">
-                <div class="face-guide-circle" aria-hidden="true"></div>
-                <span>Position your face in the circle</span>
-              </div>
-            </div>
-            <button class="btn-primary btn-full" id="btn-scan-camera" onclick="startScan('camera')">
-              📷 Start Camera Scan
-            </button>
-          </div>
-
-          <!-- Text tab -->
-          <div id="modal-text" class="modal-tab-content hidden">
-            <textarea id="text-scan-input" placeholder="Type freely about your skills, how you work best, or what challenges you face. There are no right or wrong answers." rows="5"></textarea>
-            <button class="btn-primary btn-full" onclick="startScan('text')">
-              Analyse My Text
-            </button>
-          </div>
-
-          <!-- Scan Results -->
-          <div id="scan-results" class="hidden">
-            <div class="result-banner">
-              <span id="result-confidence" class="confidence-badge"></span>
-              <h3>Scan complete</h3>
-            </div>
-            <div id="scan-tags" class="tags-row"></div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- ========== PAGE: JOBS ========== -->
+    <!-- PAGE: JOBS -->
     <div id="page-jobs" class="page hidden" role="main" aria-label="Job listings">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
       <div class="page-header">
         <div>
-          <h1>Inclusive Job Board</h1>
-          <p class="page-subtitle">Every listing is scored for accessibility and accommodation readiness.</p>
+          <h1>Inclusive Job Listings</h1>
+          <p class="page-subtitle">Scored for PWD accessibility and accommodation readiness.</p>
         </div>
-        <button class="btn-primary" onclick="loadJobs()">Refresh Matches</button>
+        <button id="btn-toggle-all-jobs" class="btn-ghost" onclick="toggleShowAllJobs()" aria-label="Toggle between matched and all jobs">◈ View All Jobs</button>
       </div>
 
       <div class="jobs-filter-bar">
-        <input type="text" class="search-input" placeholder="Search jobs, companies, or locations..." aria-label="Search jobs" />
-        <select class="filter-select" aria-label="Filter by location">
-          <option>All locations</option>
-          <option>Remote</option>
-          <option>Kuala Lumpur</option>
-          <option>Perak</option>
-          <option>Cyberjaya</option>
+        <input type="text" class="filter-input" id="job-search-input" placeholder="Search jobs, skills, companies…" aria-label="Search jobs" oninput="filterJobs()" />
+        <select class="filter-select" id="filter-location" aria-label="Filter by location" onchange="filterJobs()">
+          <option value="">All Locations</option>
+          <option value="remote">Remote</option>
+          <option value="kuala lumpur">Kuala Lumpur</option>
+          <option value="petaling jaya">Petaling Jaya</option>
+          <option value="shah alam">Shah Alam</option>
+          <option value="cyberjaya">Cyberjaya</option>
         </select>
-        <select class="filter-select" aria-label="Filter by accessibility score">
-          <option>All PWD Scores</option>
-          <option>90+</option>
-          <option>80+</option>
-          <option>70+</option>
+        <select class="filter-select" id="filter-score" aria-label="Filter by PWD score" onchange="filterJobs()">
+          <option value="0">All PWD Scores</option>
+          <option value="90">90+</option>
+          <option value="80">80+</option>
+          <option value="70">70+</option>
+        </select>
+        <select class="filter-select" id="filter-type" aria-label="Filter by job type" onchange="filterJobs()">
+          <option value="">All Types</option>
+          <option value="full-time">Full-time</option>
+          <option value="part-time">Part-time</option>
+          <option value="remote">Remote</option>
+          <option value="freelance">Freelance</option>
         </select>
       </div>
 
@@ -470,13 +403,18 @@
 
       <div id="jobs-list" class="jobs-grid"></div>
 
-      <!-- Job Application Portal (hidden until a job is clicked) -->
+      <!-- Job Portal / Application -->
       <div id="job-portal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="portal-job-title">
+        <div class="page-tts-bar">
+          <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Job Details</button>
+        </div>
         <button class="back-btn" onclick="closeJobPortal()">← Back to Jobs</button>
         <div class="portal-layout">
           <div class="portal-main">
             <h1 id="portal-job-title">Job Title</h1>
             <p id="portal-company" class="portal-meta"></p>
+            <p id="portal-job-type" class="portal-meta" style="margin-top:0.25rem"></p>
+
             <div class="portal-score-bar">
               <span>PWD Match Score</span>
               <div class="bar-track wide"><div class="bar-fill accent" id="portal-score-bar"></div></div>
@@ -485,37 +423,47 @@
             <div class="portal-perks" id="portal-perks"></div>
 
             <div class="dash-card" style="margin-top:1.5rem">
-              <h2>Accommodation Request Letter</h2>
-              <p class="form-hint">Auto-filled from your profile. Edit as needed before submitting.</p>
+              <h2>About This Role</h2>
+              <p id="portal-description" style="line-height:1.7;color:var(--text-secondary);margin-top:0.5rem"></p>
+              <div style="margin-top:1rem">
+                <strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Requirements</strong>
+                <ul id="portal-requirements" style="margin-top:0.5rem;padding-left:1.25rem;color:var(--text-secondary);line-height:1.8"></ul>
+              </div>
+            </div>
+
+            <div class="dash-card" style="margin-top:1rem;border-left:3px solid var(--accent)">
+              <h2 style="color:var(--accent)">Disability Inclusion Statement</h2>
+              <p id="portal-disability-statement" style="line-height:1.7;color:var(--text-secondary);margin-top:0.5rem"></p>
+            </div>
+
+            <!-- Profile-based assessment for this role -->
+            <div class="dash-card" style="margin-top:1rem">
+              <h2>Your Profile Fit</h2>
+              <p class="form-hint" style="margin-bottom:0.75rem">Based on your AI scan and assessments.</p>
+              <div id="portal-assessment-feedback" class="insight-list"></div>
+            </div>
+
+            <!-- Job Application Cover Letter -->
+            <div class="dash-card" style="margin-top:1.5rem">
+              <h2>Apply - Generate Cover Letter</h2>
+              <p class="form-hint">Your ability profile is used to personalise your letter. Review and edit before sending.</p>
               <div class="form-group">
-                <label for="acc-name">Your Name</label>
-                <input type="text" id="acc-name" placeholder="Full name" />
+                <label for="app-name">Your Name</label>
+                <input type="text" id="app-name" placeholder="Full name" />
               </div>
               <div class="form-group">
-                <label for="acc-job">Job Title</label>
-                <input type="text" id="acc-job" readonly />
+                <label for="app-cover-note">Additional notes <span class="optional">(optional)</span></label>
+                <textarea id="app-cover-note" rows="3" placeholder="Anything specific you'd like included - experience, motivation, etc."></textarea>
               </div>
-              <div class="form-group">
-                <label for="acc-company">Company</label>
-                <input type="text" id="acc-company" readonly />
-              </div>
-              <div class="form-group">
-                <label for="acc-need">Accommodation Needed</label>
-                <input type="text" id="acc-need" placeholder="e.g. Screen reader compatible workstation" />
-              </div>
-              <div class="form-group">
-                <label for="acc-context">Additional Context <span class="optional">(optional)</span></label>
-                <textarea id="acc-context" rows="3" placeholder="Any additional context about your needs..."></textarea>
-              </div>
-              <button class="btn-primary" onclick="generateLetter()" id="btn-generate-letter">
-                Draft Accommodation Letter
-              </button>
-              <div id="letter-results" class="hidden" style="margin-top:1.5rem">
+              <input type="hidden" id="app-job" />
+              <input type="hidden" id="app-company" />
+              <button class="btn-primary" onclick="generateApplication()" id="btn-generate-app">Generate Cover Letter</button>
+              <div id="application-results" class="hidden" style="margin-top:1.5rem">
                 <div class="letter-output-header">
-                  <h3>Your Accommodation Letter</h3>
-                  <button class="btn-ghost btn-sm" onclick="copyLetter()" aria-label="Copy letter to clipboard">Copy</button>
+                  <h3>Your Cover Letter</h3>
+                  <button class="btn-ghost btn-sm" onclick="copyApplication()" aria-label="Copy letter to clipboard">Copy</button>
                 </div>
-                <pre id="letter-output" aria-live="polite"></pre>
+                <pre id="application-output" aria-live="polite"></pre>
               </div>
             </div>
           </div>
@@ -533,17 +481,29 @@
               <h3>Your Accessibility Preferences</h3>
               <div id="portal-access" class="pref-list"></div>
             </div>
+            <div class="dash-card">
+              <h3>Salary Range</h3>
+              <div id="portal-salary" style="font-size:1.3rem;font-weight:600;color:var(--accent)"></div>
+              <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem">Monthly gross (MYR)</p>
+            </div>
           </aside>
         </div>
       </div>
     </div>
 
-    <!-- ========== PAGE: ASSESSMENTS ========== -->
+    <!-- PAGE: ASSESSMENTS -->
     <div id="page-assessments" class="page hidden" role="main" aria-label="Assessments">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
       <div class="page-header">
         <div>
           <h1>Adaptive Assessments</h1>
-          <p class="page-subtitle">Neurodivergent-friendly evaluations — timed or untimed, you choose.</p>
+          <p class="page-subtitle">Neurodivergent-friendly evaluations - timed or untimed, you choose.</p>
+        </div>
+        <div id="assessment-overall-score" class="hidden" style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem 1.25rem;box-shadow:var(--shadow-sm)">
+          <div id="assessment-score-number" style="font-size:1.8rem;font-weight:700;color:var(--accent);line-height:1">-</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;text-transform:uppercase;letter-spacing:0.05em">Overall Score</div>
         </div>
       </div>
 
@@ -561,37 +521,54 @@
       </div>
 
       <div id="assessment-home" class="assessment-grid">
-        <div class="assess-card" onclick="startAssessment('patterns')">
-          <div class="assess-icon" aria-hidden="true"></div>
+        <div class="assess-card" onclick="startAssessment('patterns')" role="button" tabindex="0" aria-label="Start Pattern Recognition assessment">
+          <div class="assess-icon" aria-hidden="true">◈</div>
           <h3>Pattern Recognition</h3>
-          <p>Identify sequences and visual patterns. Adaptively difficulty-scaled.</p>
+          <p>Identify sequences and visual patterns. Scored accurately by correctness.</p>
           <div class="assess-meta"><span class="tag-sm">Visual</span><span class="tag-sm">~8 min</span></div>
         </div>
-        <div class="assess-card" onclick="startAssessment('reasoning')">
-          <div class="assess-icon" aria-hidden="true"></div>
+        <div class="assess-card" onclick="startAssessment('reasoning')" role="button" tabindex="0" aria-label="Start Logical Reasoning assessment">
+          <div class="assess-icon" aria-hidden="true">◉</div>
           <h3>Logical Reasoning</h3>
-          <p>Aptitude and abstract reasoning challenges in accessible formats.</p>
+          <p>Aptitude and abstract reasoning in accessible formats.</p>
           <div class="assess-meta"><span class="tag-sm">Reasoning</span><span class="tag-sm">~12 min</span></div>
         </div>
-        <div class="assess-card" onclick="startAssessment('memory')">
-          <div class="assess-icon" aria-hidden="true"></div>
-          <h3>Memory & Attention</h3>
-          <p>Sequence recall and attention activities. Flexible pacing available.</p>
+        <div class="assess-card" onclick="startAssessment('memory')" role="button" tabindex="0" aria-label="Start Memory and Recall assessment">
+          <div class="assess-icon" aria-hidden="true">◎</div>
+          <h3>Memory & Recall</h3>
+          <p>Study items then recall them after a delay - real memory assessment.</p>
           <div class="assess-meta"><span class="tag-sm">Cognitive</span><span class="tag-sm">~10 min</span></div>
         </div>
-        <div class="assess-card" onclick="startAssessment('typing')">
-          <div class="assess-icon" aria-hidden="true"></div>
+        <div class="assess-card" onclick="startAssessment('typing')" role="button" tabindex="0" aria-label="Start Interaction Analysis assessment">
+          <div class="assess-icon" aria-hidden="true">◫</div>
           <h3>Interaction Analysis</h3>
-          <p>Typing patterns, response consistency, and comprehension indicators.</p>
+          <p>Typing accuracy and open-ended responses - scored for precision and detail.</p>
           <div class="assess-meta"><span class="tag-sm">Adaptive</span><span class="tag-sm">~6 min</span></div>
         </div>
       </div>
 
-      <!-- Active Assessment View -->
+      <div id="memory-study-phase" class="hidden">
+        <div class="assessment-runner">
+          <div class="runner-header">
+            <button class="btn-ghost btn-sm" onclick="exitAssessment()">← Exit</button>
+            <h3 style="flex:1;text-align:center;font-size:1rem">Memory Study Phase</h3>
+            <div id="study-timer" class="timer" aria-live="polite" aria-label="Study time remaining"></div>
+          </div>
+          <div class="runner-body">
+            <div style="text-align:center;margin-bottom:1.5rem;color:var(--text-secondary)"><strong>Study these carefully.</strong> You will be tested on them after the timer ends.</div>
+            <div id="study-items-display" style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center"></div>
+            <div style="margin-top:2rem">
+              <div class="bar-track"><div class="bar-fill" id="study-bar-fill" style="width:100%;transition:width 1s linear"></div></div>
+              <p style="text-align:center;margin-top:0.5rem;font-size:0.85rem;color:var(--text-muted)" id="study-bar-label">Memorise now…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="assessment-active" class="hidden">
         <div class="assessment-runner">
           <div class="runner-header">
-            <button class="btn-ghost btn-sm" onclick="exitAssessment()"> Exit</button>
+            <button class="btn-ghost btn-sm" onclick="exitAssessment()">← Exit</button>
             <div class="runner-progress">
               <div class="bar-track"><div class="bar-fill" id="assess-progress-bar" style="width:0%"></div></div>
               <span id="assess-progress-text">Question 1 of 5</span>
@@ -606,18 +583,21 @@
         </div>
       </div>
 
-      <!-- Assessment Results -->
       <div id="assessment-results" class="hidden">
         <div class="result-card">
           <h2>Assessment Complete</h2>
           <div class="result-scores" id="result-scores-display"></div>
-          <button class="btn-primary" onclick="backToAssessments()">Back to Assessments</button>
+          <div id="result-breakdown" style="margin-top:1rem;font-size:0.9rem;color:var(--text-secondary)"></div>
+          <button class="btn-primary" style="margin-top:1.5rem" onclick="backToAssessments()">Back to Assessments</button>
         </div>
       </div>
     </div>
 
-    <!-- ========== PAGE: ACCESSIBILITY SETTINGS ========== -->
+    <!-- PAGE: ACCESSIBILITY SETTINGS -->
     <div id="page-accessibility" class="page hidden" role="main" aria-label="Accessibility settings">
+      <div class="page-tts-bar">
+        <button class="tts-btn" onclick="readPageAloud()" aria-pressed="false">🔊 Read Aloud</button>
+      </div>
       <div class="page-header">
         <h1>Accessibility Settings</h1>
         <p class="page-subtitle">Customise your AbilityBridge experience.</p>
@@ -626,10 +606,7 @@
         <div class="dash-card">
           <h2>Display</h2>
           <div class="setting-row">
-            <div>
-              <strong>Font Size</strong>
-              <p>Adjust base text size across the platform.</p>
-            </div>
+            <div><strong>Font Size</strong><p>Adjust base text size across the platform.</p></div>
             <div class="font-size-control">
               <button class="btn-tag" onclick="adjustFontSize(-1)" aria-label="Decrease font size">A−</button>
               <span id="font-size-display">18px</span>
@@ -637,70 +614,57 @@
             </div>
           </div>
           <div class="setting-row">
-            <div>
-              <strong>High Contrast</strong>
-              <p>Increases contrast for better readability.</p>
-            </div>
+            <div><strong>High Contrast</strong><p>Increases contrast for better readability.</p></div>
             <label class="toggle-label">
               <input type="checkbox" id="toggle-high-contrast" role="switch" onchange="toggleHighContrast(this)" />
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </label>
           </div>
           <div class="setting-row">
-            <div>
-              <strong>Reduce Motion</strong>
-              <p>Minimises animations and transitions.</p>
-            </div>
+            <div><strong>Reduce Motion</strong><p>Minimises animations and transitions.</p></div>
             <label class="toggle-label">
               <input type="checkbox" id="toggle-motion" role="switch" onchange="toggleMotion(this)" />
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </label>
           </div>
         </div>
-
         <div class="dash-card">
-          <h2>Interaction</h2>
+          <h2>Reading & Audio</h2>
           <div class="setting-row">
             <div>
-              <strong>Keyboard Navigation</strong>
-              <p>Enhanced focus indicators for keyboard users.</p>
+              <strong>Read Aloud</strong>
+              <p>Use the 🔊 button on any page, or press Alt+R. Navigation: Alt+H (Home), Alt+J (Jobs), Escape (close/back).</p>
             </div>
-            <label class="toggle-label">
-              <input type="checkbox" id="toggle-keyboard" role="switch" checked onchange="toggleKeyboardMode(this)" />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </label>
+            <button class="tts-btn btn-tag" onclick="readPageAloud()" aria-pressed="false" style="white-space:nowrap">🔊 Test</button>
           </div>
           <div class="setting-row">
-            <div>
-              <strong>Voice Input</strong>
-              <p>Enable speech-to-text in text fields.</p>
-            </div>
-            <label class="toggle-label">
-              <input type="checkbox" id="toggle-voice-input" role="switch" onchange="toggleVoiceInput(this)" />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="dash-card">
-          <h2>Reading Support</h2>
-          <div class="setting-row">
-            <div>
-              <strong>Dyslexia-friendly Font</strong>
-              <p>Switch to OpenDyslexic typeface.</p>
-            </div>
+            <div><strong>Dyslexia-friendly Font</strong><p>Switch to OpenDyslexic typeface.</p></div>
             <label class="toggle-label">
               <input type="checkbox" id="toggle-dyslexia" role="switch" onchange="toggleDyslexiaFont(this)" />
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </label>
           </div>
           <div class="setting-row">
-            <div>
-              <strong>Line Spacing</strong>
-              <p>Increased line height for readability.</p>
-            </div>
+            <div><strong>Line Spacing</strong><p>Increased line height for readability.</p></div>
             <label class="toggle-label">
               <input type="checkbox" id="toggle-line-spacing" role="switch" onchange="toggleLineSpacing(this)" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+        </div>
+        <div class="dash-card">
+          <h2>Interaction</h2>
+          <div class="setting-row">
+            <div><strong>Keyboard Navigation</strong><p>Enhanced focus indicators for keyboard users.</p></div>
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-keyboard" role="switch" checked onchange="toggleKeyboardMode(this)" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div><strong>Voice Input</strong><p>Enable speech-to-text in text fields.</p></div>
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-voice-input" role="switch" onchange="toggleVoiceInput(this)" />
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </label>
           </div>
@@ -710,6 +674,67 @@
 
   </main>
 
-  <script src="script.js"></script>
+  <!-- AI ABILITY SCAN MODAL -->
+  <div id="profiling-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-title">AI Ability Scan</h2>
+        <button class="modal-close" onclick="closeProfilingModal()" aria-label="Close modal">✕</button>
+      </div>
+      <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:1rem">Tell us about yourself in your own words. Use real sentences - the AI evaluates meaning, not length.</p>
+
+      <div class="modal-tabs" role="tablist">
+        <button class="modal-tab active" role="tab" aria-selected="true" onclick="switchModalTab('text', this)">✏ Text</button>
+        <button class="modal-tab" role="tab" aria-selected="false" onclick="switchModalTab('voice', this)">🎙 Voice</button>
+      </div>
+
+      <!-- TEXT TAB -->
+      <div id="modal-text" class="modal-tab-content">
+        <textarea id="text-scan-input" rows="6" placeholder="Describe your skills, strengths, how you work best, what you enjoy, and your work environment preferences. Be specific - e.g. 'I excel at analysing data patterns, prefer async communication over meetings, and work best in quiet environments with clear task structures.'" aria-label="Describe yourself for AI analysis" style="width:100%;resize:vertical;padding:0.75rem;border:1.5px solid var(--border);border-radius:var(--radius);font-family:var(--font-sans);font-size:0.95rem;background:var(--bg);color:var(--text-primary)"></textarea>
+        <div style="margin-top:0.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem">
+          <div>
+            <div id="text-quality-fill" style="height:4px;border-radius:2px;background:var(--border);width:0%;transition:width 0.3s,background 0.3s;margin-bottom:0.25rem"></div>
+            <span id="text-quality-label" style="font-size:0.8rem;color:var(--text-muted)">Start typing…</span>
+          </div>
+          <span id="text-char-count" style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">0 characters · 0 words</span>
+        </div>
+        <div style="margin-top:0.75rem;padding:0.6rem 0.85rem;background:var(--accent-light);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--accent)">
+          💡 <strong>Tips:</strong> Mention specific tasks you enjoy, environments that help you focus, how you prefer to communicate, and any working style preferences.
+        </div>
+        <button id="btn-scan-text" class="btn-primary" style="width:100%;margin-top:1rem" onclick="startScan('text')">Analyse My Text</button>
+      </div>
+
+      <!-- VOICE TAB -->
+      <div id="modal-voice" class="modal-tab-content hidden">
+        <div style="text-align:center;padding:1.5rem 0">
+          <div id="voice-ring" class="voice-ring" aria-hidden="true">
+            <div class="voice-ring-inner">🎙</div>
+          </div>
+          <p id="voice-status-text" style="margin-top:1rem;color:var(--text-secondary);font-size:0.9rem">Press to start speaking</p>
+          <p id="voice-duration-display" style="font-size:0.8rem;color:var(--text-muted);min-height:1.2em"></p>
+          <p id="voice-word-count" style="font-size:0.8rem;font-weight:600;color:var(--success);min-height:1.2em"></p>
+        </div>
+        <div id="voice-transcript-preview" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem;font-size:0.85rem;color:var(--text-secondary);max-height:120px;overflow-y:auto;margin-bottom:1rem" aria-live="polite" aria-label="Voice transcript preview"></div>
+        <div style="margin-bottom:0.75rem;padding:0.6rem 0.85rem;background:var(--accent-light);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--accent)">
+          💡 Speak for at least 20 seconds. Describe your skills, strengths, preferred work style, and environment.
+        </div>
+        <button id="btn-scan-voice" class="btn-primary" style="width:100%" onclick="toggleVoiceScan()">🎙 Start Voice Recording</button>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="scan-results" class="hidden" style="margin-top:1.25rem;padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
+          <span id="result-confidence" class="tag-pill" style="background:var(--accent);color:#fff;font-weight:600"></span>
+          <span id="result-title" style="font-weight:600;color:var(--text-primary)"></span>
+        </div>
+        <div id="scan-error-msg" class="form-error hidden" role="alert"></div>
+        <div id="scan-tags" class="tags-row"></div>
+        <div id="scan-insights" class="hidden" style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.4rem;font-size:0.85rem;color:var(--text-secondary)"></div>
+        <button class="btn-primary" style="margin-top:1rem;width:100%" onclick="closeProfilingModal()">Apply to Profile ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
