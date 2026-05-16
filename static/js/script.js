@@ -1,8 +1,6 @@
-/* AbilityBridge — script.js v3.0 */
+/* AbilityBridge -- script.js */
 
-// ==========================================
-// STATE
-// ==========================================
+// app state
 const AppState = {
   isLoggedIn: false,
   currentPage: 'home',
@@ -21,154 +19,125 @@ const AppState = {
   allJobs: [],
   voiceScan: { active: false, recognition: null, transcript: '', startTime: null, interval: null },
   assessmentScores: {},
-  ttsActive: false,
   showAllJobs: false,
 };
 
-// ==========================================
-// TEXT-TO-SPEECH (Read Aloud)
-// ==========================================
-let ttsUtterance = null;
-
-function readPageAloud() {
-  if (!window.speechSynthesis) {
-    alert('Text-to-speech is not supported in your browser.');
-    return;
-  }
-
-  if (AppState.ttsActive) {
-    window.speechSynthesis.cancel();
-    AppState.ttsActive = false;
-    updateTTSButtons(false);
-    return;
-  }
-
-  const pageEl = document.querySelector('.page.active');
-  if (!pageEl) return;
-
-  // Collect readable text: headings, paragraphs, buttons, labels
-  const readable = [];
-  pageEl.querySelectorAll('h1,h2,h3,p,label,button,.pref-item,.tag-pill,.perk-chip,.insight-item,.reco-item p,.job-card h3,.job-card .job-card-meta').forEach(el => {
-    const text = el.textContent.trim();
-    if (text && text.length > 2 && !el.closest('[aria-hidden="true"]')) {
-      readable.push(text);
-    }
-  });
-
-  const fullText = readable.join('. ');
-  if (!fullText) return;
-
-  ttsUtterance = new SpeechSynthesisUtterance(fullText);
-  ttsUtterance.lang = 'en-MY';
-  ttsUtterance.rate = 0.9;
-  ttsUtterance.onend = () => { AppState.ttsActive = false; updateTTSButtons(false); };
-  ttsUtterance.onerror = () => { AppState.ttsActive = false; updateTTSButtons(false); };
-
-  AppState.ttsActive = true;
-  updateTTSButtons(true);
-  window.speechSynthesis.speak(ttsUtterance);
-}
-
-function updateTTSButtons(active) {
-  document.querySelectorAll('.tts-btn').forEach(btn => {
-    btn.textContent = active ? '⏹ Stop Reading' : '🔊 Read Aloud';
-    btn.setAttribute('aria-pressed', active.toString());
-  });
-}
-
-function speakText(text) {
-  if (!window.speechSynthesis || !text) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-MY';
-  u.rate = 0.95;
-  window.speechSynthesis.speak(u);
-}
-
-// ==========================================
-// KEYBOARD NAVIGATION (blind users)
-// ==========================================
+// keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-  // Alt+R = Read aloud
-  if (e.altKey && e.key === 'r') { e.preventDefault(); readPageAloud(); return; }
-  // Alt+H = Home
-  if (e.altKey && e.key === 'h') { e.preventDefault(); navigate('home'); return; }
-  // Alt+J = Jobs
-  if (e.altKey && e.key === 'j') { e.preventDefault(); navigate('jobs'); return; }
-  // Escape: close modal or go back
+  if (e.altKey && e.key === 'h') {
+    e.preventDefault();
+    navigate('home');
+    return;
+  }
+  if (e.altKey && e.key === 'j') {
+    e.preventDefault();
+    navigate('jobs');
+    return;
+  }
   if (e.key === 'Escape') {
     const modal = document.getElementById('profiling-modal');
-    if (modal && !modal.classList.contains('hidden')) { closeProfilingModal(); return; }
-    if (AppState.currentPage === 'jobs' && AppState.currentJob) { closeJobPortal(); }
+    if (modal && !modal.classList.contains('hidden')) {
+      closeProfilingModal();
+      return;
+    }
+    if (AppState.currentPage === 'jobs' && AppState.currentJob) {
+      closeJobPortal();
+    }
   }
 });
 
-// ==========================================
-// NAVIGATION
-// ==========================================
+// navigation
 function navigate(page, event) {
-  if (event) event.preventDefault();
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
-  AppState.ttsActive = false;
-  updateTTSButtons(false);
+  if (event) {
+    event.preventDefault();
+  }
 
   const protected_ = ['profile', 'assessments', 'accessibility'];
-  if (protected_.includes(page) && !AppState.isLoggedIn) { navigate('login'); return; }
+  if (protected_.includes(page) && !AppState.isLoggedIn) {
+    navigate('login');
+    return;
+  }
 
-  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
-  const target = document.getElementById(`page-${page}`);
-  if (target) { target.classList.remove('hidden'); target.classList.add('active'); AppState.currentPage = page; }
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.classList.add('hidden');
+  });
+
+  const target = document.getElementById('page-' + page);
+  if (target) {
+    target.classList.remove('hidden');
+    target.classList.add('active');
+    AppState.currentPage = page;
+  }
 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll(`[data-page="${page}"]`).forEach(n => n.classList.add('active'));
+  document.querySelectorAll('[data-page="' + page + '"]').forEach(n => n.classList.add('active'));
 
   if (page === 'jobs') {
     document.getElementById('job-portal').classList.add('hidden');
     document.getElementById('jobs-list').classList.remove('hidden');
-    document.querySelector('.jobs-filter-bar')?.classList.remove('hidden');
+    const filterBar = document.querySelector('.jobs-filter-bar');
+    if (filterBar) filterBar.classList.remove('hidden');
     if (AppState.allJobs.length === 0) loadJobs();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ==========================================
-// AUTH
-// ==========================================
+// auth
 async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('login-error');
   errorEl.classList.add('hidden');
-  if (!email || !password) { showError(errorEl, 'Please fill in all fields.'); return; }
+
+  if (!email || !password) {
+    showError(errorEl, 'Please fill in all fields.');
+    return;
+  }
 
   const btn = document.getElementById('login-btn');
-  btn.textContent = 'Signing in…'; btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
 
   try {
-    const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
     const data = await res.json();
-    if (!res.ok) { showError(errorEl, data.error || 'Login failed.'); return; }
+    if (!res.ok) {
+      showError(errorEl, data.error || 'Login failed.');
+      return;
+    }
     AppState.isLoggedIn = true;
     AppState.userProfile.name = data.name;
     AppState.userProfile.email = email;
     showPostLoginNav();
     navigate('home');
-  } catch {
-    // Demo fallback
+  } catch (err) {
+    // demo fallback if server is unreachable
     AppState.isLoggedIn = true;
     AppState.userProfile.name = email.split('@')[0];
     AppState.userProfile.email = email;
     showPostLoginNav();
     navigate('home');
-  } finally { btn.textContent = 'Sign In'; btn.disabled = false; }
+  }
+
+  btn.textContent = 'Sign In';
+  btn.disabled = false;
 }
 
 function showSignup(event) {
   if (event) event.preventDefault();
-  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.classList.add('hidden');
+  });
   const s = document.getElementById('page-signup');
-  s.classList.remove('hidden'); s.classList.add('active');
+  s.classList.remove('hidden');
+  s.classList.add('active');
 }
 
 async function handleSignup() {
@@ -179,32 +148,57 @@ async function handleSignup() {
   const errorEl = document.getElementById('signup-error');
   errorEl.classList.add('hidden');
 
-  if (!name || !email || !password || !confirm) { showError(errorEl, 'Please fill in all fields.'); return; }
-  if (password.length < 8) { showError(errorEl, 'Password must be at least 8 characters.'); return; }
-  if (password !== confirm) { showError(errorEl, 'Passwords do not match.'); return; }
+  if (!name || !email || !password || !confirm) {
+    showError(errorEl, 'Please fill in all fields.');
+    return;
+  }
+  if (password.length < 8) {
+    showError(errorEl, 'Password must be at least 8 characters.');
+    return;
+  }
+  if (password !== confirm) {
+    showError(errorEl, 'Passwords do not match.');
+    return;
+  }
 
   const btn = document.getElementById('signup-btn');
-  btn.textContent = 'Creating account…'; btn.disabled = true;
+  btn.textContent = 'Creating account...';
+  btn.disabled = true;
 
   try {
-    const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) });
+    const res = await fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    });
     const data = await res.json();
-    if (!res.ok) { showError(errorEl, data.error || 'Signup failed.'); return; }
-  } catch { /* demo fallback */ }
+    if (!res.ok) {
+      showError(errorEl, data.error || 'Signup failed.');
+      btn.textContent = 'Create Account';
+      btn.disabled = false;
+      return;
+    }
+  } catch (err) {
+    // demo fallback
+  }
 
   AppState.userProfile.name = name;
   AppState.userProfile.email = email;
   AppState.isLoggedIn = true;
   showPostLoginNav();
   showOnboarding();
-  btn.textContent = 'Create Account'; btn.disabled = false;
+  btn.textContent = 'Create Account';
+  btn.disabled = false;
 }
 
 function handleLogout(event) {
   event.preventDefault();
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
   AppState.isLoggedIn = false;
-  AppState.userProfile = { name: '', email: '', education: '', skills: '', interests: '', experience: '', accessibilityPrefs: [], communicationStyle: '', workplaceEnv: '', abilityProfile: null };
+  AppState.userProfile = {
+    name: '', email: '', education: '', skills: '', interests: '',
+    experience: '', accessibilityPrefs: [], communicationStyle: '',
+    workplaceEnv: '', abilityProfile: null,
+  };
   AppState.allJobs = [];
   AppState.assessmentScores = {};
   showPreLoginNav();
@@ -216,22 +210,32 @@ function showPostLoginNav() {
   document.getElementById('nav-pre-login').classList.add('hidden');
   document.getElementById('nav-post-login').classList.remove('hidden');
   const g = document.getElementById('profile-greeting');
-  if (g && AppState.userProfile.name) g.textContent = `Welcome, ${capitalise(AppState.userProfile.name)}`;
+  if (g && AppState.userProfile.name) {
+    g.textContent = 'Welcome, ' + capitalise(AppState.userProfile.name);
+  }
 }
+
 function showPreLoginNav() {
   document.getElementById('nav-post-login').classList.add('hidden');
   document.getElementById('nav-pre-login').classList.remove('hidden');
 }
-function showOnboarding() {
-  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
-  const ob = document.getElementById('page-onboarding');
-  ob.classList.remove('hidden'); ob.classList.add('active');
-}
-function showError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
 
-// ==========================================
-// ONBOARDING
-// ==========================================
+function showOnboarding() {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.classList.add('hidden');
+  });
+  const ob = document.getElementById('page-onboarding');
+  ob.classList.remove('hidden');
+  ob.classList.add('active');
+}
+
+function showError(el, msg) {
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+// onboarding
 function nextOnboardingStep() {
   AppState.userProfile.education = document.getElementById('ob-education').value;
   AppState.userProfile.skills = document.getElementById('ob-skills').value;
@@ -241,11 +245,13 @@ function nextOnboardingStep() {
   document.getElementById('onboarding-step-2').classList.remove('hidden');
   document.querySelectorAll('.step')[1].classList.add('active');
 }
+
 function prevOnboardingStep() {
   document.getElementById('onboarding-step-2').classList.add('hidden');
   document.getElementById('onboarding-step-1').classList.remove('hidden');
   document.querySelectorAll('.step')[1].classList.remove('active');
 }
+
 function completeOnboarding() {
   const checked = document.querySelectorAll('.checkbox-item input:checked');
   AppState.userProfile.accessibilityPrefs = Array.from(checked).map(c => c.value);
@@ -257,14 +263,17 @@ function completeOnboarding() {
 
 function populateProfileDashboard() {
   const g = document.getElementById('profile-greeting');
-  if (g && AppState.userProfile.name) g.textContent = `Welcome, ${capitalise(AppState.userProfile.name)}`;
+  if (g && AppState.userProfile.name) {
+    g.textContent = 'Welcome, ' + capitalise(AppState.userProfile.name);
+  }
 
   if (AppState.userProfile.skills) {
     const tags = document.getElementById('profile-strengths-tags');
     tags.innerHTML = '';
     AppState.userProfile.skills.split(',').map(s => s.trim()).filter(Boolean).forEach(skill => {
       const pill = document.createElement('span');
-      pill.className = 'tag-pill'; pill.textContent = skill;
+      pill.className = 'tag-pill';
+      pill.textContent = skill;
       tags.appendChild(pill);
     });
   }
@@ -273,42 +282,52 @@ function populateProfileDashboard() {
     const el = document.getElementById('profile-access-display');
     el.innerHTML = '';
     const labelMap = {
-      'screen-reader': 'Screen reader compatible', 'keyboard-nav': 'Keyboard-only navigation',
-      'high-contrast': 'High contrast mode', 'large-text': 'Larger text preference',
-      'reduced-motion': 'Reduced motion', 'captions': 'Captions / transcripts',
-      'voice-input': 'Voice input preferred', 'flexible-timing': 'Flexible task timing',
+      'screen-reader': 'Screen reader compatible',
+      'keyboard-nav': 'Keyboard-only navigation',
+      'high-contrast': 'High contrast mode',
+      'large-text': 'Larger text preference',
+      'reduced-motion': 'Reduced motion',
+      'captions': 'Captions / transcripts',
+      'voice-input': 'Voice input preferred',
+      'flexible-timing': 'Flexible task timing',
     };
     AppState.userProfile.accessibilityPrefs.forEach(pref => {
       const div = document.createElement('div');
       div.className = 'pref-item';
-      div.innerHTML = `<span class="pref-dot accent"></span> ${labelMap[pref] || pref}`;
+      div.innerHTML = '<span class="pref-dot accent"></span> ' + (labelMap[pref] || pref);
       el.appendChild(div);
     });
   }
 }
 
-// ==========================================
-// AI ABILITY SCAN
-// ==========================================
+// ai ability scan modal
 function openProfilingModal() {
   document.getElementById('profiling-modal').classList.remove('hidden');
   document.getElementById('scan-results').classList.add('hidden');
   switchModalTab('text', document.querySelector('.modal-tab.active'));
 }
+
 function closeProfilingModal() {
   stopVoiceScan();
   document.getElementById('profiling-modal').classList.add('hidden');
 }
+
 function switchModalTab(tab, btn) {
-  document.querySelectorAll('.modal-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+  document.querySelectorAll('.modal-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  if (btn) {
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+  }
   document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.add('hidden'));
-  document.getElementById(`modal-${tab}`).classList.remove('hidden');
+  document.getElementById('modal-' + tab).classList.remove('hidden');
   document.getElementById('scan-results').classList.add('hidden');
   if (tab !== 'voice') stopVoiceScan();
 }
 
-// Text quality meter
+// text quality meter (lowered threshold to 50 chars)
 (function setupTextScan() {
   setTimeout(() => {
     const ta = document.getElementById('text-scan-input');
@@ -319,15 +338,35 @@ function switchModalTab(tab, btn) {
       const charCount = document.getElementById('text-char-count');
       const qualityLabel = document.getElementById('text-quality-label');
       const qualityFill = document.getElementById('text-quality-fill');
-      if (charCount) charCount.textContent = `${len} characters · ${words} words`;
-      const pct = Math.min(100, Math.round((len / 300) * 100));
-      let label, color;
-      if (len < 80) { label = 'Too short — add more detail'; color = 'var(--error)'; }
-      else if (len < 160) { label = 'Getting there…'; color = 'var(--warning)'; }
-      else if (len < 250) { label = 'Good — keep going'; color = '#c47c2e'; }
-      else { label = '✓ Excellent detail'; color = 'var(--success)'; }
-      if (qualityLabel) { qualityLabel.textContent = label; qualityLabel.style.color = color; }
-      if (qualityFill) { qualityFill.style.width = `${pct}%`; qualityFill.style.background = color; }
+
+      if (charCount) charCount.textContent = len + ' characters \u00b7 ' + words + ' words';
+
+      const pct = Math.min(100, Math.round((len / 200) * 100));
+      let label;
+      let color;
+
+      if (len < 50) {
+        label = 'Too short - add a bit more';
+        color = 'var(--error)';
+      } else if (len < 100) {
+        label = 'Getting there...';
+        color = 'var(--warning)';
+      } else if (len < 160) {
+        label = 'Good - keep going';
+        color = '#c47c2e';
+      } else {
+        label = '\u2713 Excellent detail';
+        color = 'var(--success)';
+      }
+
+      if (qualityLabel) {
+        qualityLabel.textContent = label;
+        qualityLabel.style.color = color;
+      }
+      if (qualityFill) {
+        qualityFill.style.width = pct + '%';
+        qualityFill.style.background = color;
+      }
     });
   }, 300);
 })();
@@ -335,9 +374,12 @@ function switchModalTab(tab, btn) {
 async function startScan(type) {
   if (type === 'text') {
     const content = document.getElementById('text-scan-input').value.trim();
-    if (content.length < 80) {
+    if (content.length < 50) {
       const ql = document.getElementById('text-quality-label');
-      if (ql) { ql.textContent = '⚠ Please write more before analysing'; ql.style.color = 'var(--error)'; }
+      if (ql) {
+        ql.textContent = 'Please write a little more before analysing';
+        ql.style.color = 'var(--error)';
+      }
       return;
     }
     await runScanRequest('text', content, 0);
@@ -347,11 +389,15 @@ async function startScan(type) {
 async function runScanRequest(type, content, durationSeconds) {
   const btnId = type === 'text' ? 'btn-scan-text' : 'btn-scan-voice';
   const btn = document.getElementById(btnId);
-  if (btn) { btn.textContent = 'Analysing…'; btn.disabled = true; }
+  if (btn) {
+    btn.textContent = 'Analysing...';
+    btn.disabled = true;
+  }
 
   try {
     const res = await fetch('/api/generate-profile', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, content, duration_seconds: durationSeconds }),
     });
     const data = await res.json();
@@ -361,14 +407,23 @@ async function runScanRequest(type, content, durationSeconds) {
     }
     renderScanResults(data);
     AppState.userProfile.abilityProfile = data;
-  } catch {
-    if (type === 'text' && content.length > 80) {
-      renderScanResults({ confidence: 62, strengths: ['Written communication', 'Reflective thinking', 'Detail orientation'], mobility: 'Keyboard-primary navigation preferred', sensory: 'Text-based processing preference', communication: 'Written communication preference' });
+  } catch (err) {
+    if (type === 'text' && content.length > 50) {
+      renderScanResults({
+        confidence: 62,
+        strengths: ['Written communication', 'Reflective thinking', 'Detail orientation'],
+        mobility: 'Keyboard-primary navigation preferred',
+        sensory: 'Text-based processing preference',
+        communication: 'Written communication preference',
+      });
     } else {
       renderScanError('Scan failed. Check your connection and try again.');
     }
-  } finally {
-    if (btn) { btn.textContent = type === 'text' ? 'Analyse My Text' : '🎙 Start Voice Recording'; btn.disabled = false; }
+  }
+
+  if (btn) {
+    btn.textContent = type === 'text' ? 'Analyse My Text' : '\ud83c\udfa9 Start Voice Recording';
+    btn.disabled = false;
   }
 }
 
@@ -378,14 +433,15 @@ function renderScanError(message) {
   document.getElementById('result-title').textContent = 'Insufficient data';
   document.getElementById('scan-tags').innerHTML = '';
   const errMsg = document.getElementById('scan-error-msg');
-  errMsg.textContent = message; errMsg.classList.remove('hidden');
+  errMsg.textContent = message;
+  errMsg.classList.remove('hidden');
   document.getElementById('scan-insights').classList.add('hidden');
   container.classList.remove('hidden');
 }
 
 function renderScanResults(data) {
   const conf = data.confidence || 0;
-  document.getElementById('result-confidence').textContent = `${conf}% confidence`;
+  document.getElementById('result-confidence').textContent = conf + '% confidence';
   document.getElementById('result-title').textContent = conf > 0 ? 'Scan complete' : 'Insufficient data';
   document.getElementById('scan-error-msg').classList.add('hidden');
 
@@ -393,7 +449,8 @@ function renderScanResults(data) {
   tagsEl.innerHTML = '';
   (data.strengths || []).forEach(s => {
     const pill = document.createElement('span');
-    pill.className = 'tag-pill'; pill.textContent = s;
+    pill.className = 'tag-pill';
+    pill.textContent = s;
     tagsEl.appendChild(pill);
   });
 
@@ -401,21 +458,18 @@ function renderScanResults(data) {
   if (data.mobility || data.communication || (data.challenges && data.challenges.length) || data.dyslexia_note) {
     const rows = [];
 
-    // positive insights first
-    if (data.mobility) rows.push(`<div>🧭 <strong>Ergonomic:</strong> ${data.mobility}</div>`);
-    if (data.sensory) rows.push(`<div>👁 <strong>Sensory:</strong> ${data.sensory}</div>`);
-    if (data.communication) rows.push(`<div>💬 <strong>Communication:</strong> ${data.communication}</div>`);
+    if (data.mobility) rows.push('<div>\ud83e\udded <strong>Ergonomic:</strong> ' + data.mobility + '</div>');
+    if (data.sensory) rows.push('<div>\ud83d\udc41 <strong>Sensory:</strong> ' + data.sensory + '</div>');
+    if (data.communication) rows.push('<div>\ud83d\udcac <strong>Communication:</strong> ' + data.communication + '</div>');
 
-    // dyslexia note shown kindly in its own highlighted block
     if (data.dyslexia_note && data.dyslexia_note !== 'null') {
-      rows.push(`<div style="margin-top:0.5rem;padding:0.4rem 0.6rem;border-left:3px solid var(--warning);background:var(--bg-card)">📖 <strong>Note:</strong> ${data.dyslexia_note}</div>`);
+      rows.push('<div style="margin-top:0.5rem;padding:0.4rem 0.6rem;border-left:3px solid var(--warning);background:var(--bg-card)">\ud83d\udcd6 <strong>Note:</strong> ' + data.dyslexia_note + '</div>');
     }
 
-    // challenges — honest but professionally worded
     const challenges = (data.challenges || []).filter(c => c && c.toLowerCase() !== 'none detected');
     if (challenges.length) {
-      rows.push('<div style="margin-top:0.5rem"><strong>⚠️ Areas to be aware of:</strong></div>');
-      challenges.forEach(c => rows.push(`<div style="padding-left:1rem;color:var(--text-muted)">• ${c}</div>`));
+      rows.push('<div style="margin-top:0.5rem"><strong>Areas to be aware of:</strong></div>');
+      challenges.forEach(c => rows.push('<div style="padding-left:1rem;color:var(--text-muted)">&bull; ' + c + '</div>'));
     }
 
     insightsEl.innerHTML = rows.join('');
@@ -429,12 +483,15 @@ function renderScanResults(data) {
       const seen = new Set();
       const combined = [...manual, ...(data.strengths || [])].filter(s => {
         const k = s.toLowerCase();
-        return seen.has(k) ? false : seen.add(k);
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
       });
       profileTags.innerHTML = '';
       combined.forEach(s => {
         const pill = document.createElement('span');
-        pill.className = 'tag-pill'; pill.textContent = s;
+        pill.className = 'tag-pill';
+        pill.textContent = s;
         profileTags.appendChild(pill);
       });
     }
@@ -450,11 +507,13 @@ document.addEventListener('click', (e) => {
   if (e.target === modal) closeProfilingModal();
 });
 
-// ==========================================
-// VOICE SCAN
-// ==========================================
+// voice scan
 function toggleVoiceScan() {
-  AppState.voiceScan.active ? stopVoiceScan(true) : startVoiceScan();
+  if (AppState.voiceScan.active) {
+    stopVoiceScan(true);
+  } else {
+    startVoiceScan();
+  }
 }
 
 function startVoiceScan() {
@@ -476,12 +535,14 @@ function startVoiceScan() {
   const wordCount = document.getElementById('voice-word-count');
   const btn = document.getElementById('btn-scan-voice');
 
-  ring?.classList.add('active');
-  preview?.classList.remove('hidden');
-  if (statusText) statusText.textContent = 'Listening… speak about your strengths and work style';
-  if (btn) { btn.textContent = '⏹ Stop & Analyse'; btn.style.background = 'var(--error)'; }
+  if (ring) ring.classList.add('active');
+  if (preview) preview.classList.remove('hidden');
+  if (statusText) statusText.textContent = 'Listening... speak about your strengths and work style';
+  if (btn) {
+    btn.textContent = 'Stop & Analyse';
+    btn.style.background = 'var(--error)';
+  }
 
-  // builds a fresh recognition instance and wires all handlers
   function createRecognition() {
     const rec = new SR();
     rec.continuous = true;
@@ -501,7 +562,7 @@ function startVoiceScan() {
       }
 
       state.transcript += final;
-      const fullText = (state.transcript + interim).trim() || 'Listening…';
+      const fullText = (state.transcript + interim).trim() || 'Listening...';
 
       if (preview) {
         preview.textContent = fullText;
@@ -510,35 +571,34 @@ function startVoiceScan() {
 
       const words = state.transcript.trim().split(/\s+/).filter(Boolean).length;
       if (wordCount) {
-        wordCount.textContent = `${words} words`;
-        // colour shifts green as word count grows
-        if (words < 30) wordCount.style.color = 'var(--warning)';
-        else if (words < 60) wordCount.style.color = '#c47c2e';
-        else wordCount.style.color = 'var(--success)';
+        wordCount.textContent = words + ' words';
+        if (words < 30) {
+          wordCount.style.color = 'var(--warning)';
+        } else if (words < 60) {
+          wordCount.style.color = '#c47c2e';
+        } else {
+          wordCount.style.color = 'var(--success)';
+        }
       }
     };
 
     rec.onerror = (event) => {
-      // no-speech = just a pause, browser fires onend and we auto-restart
       if (event.error === 'no-speech') return;
       if (event.error === 'not-allowed') {
         alert('Microphone access denied. Please allow microphone access in your browser settings.');
       }
-      // hard stop on real errors only
       stopVoiceScan(false);
     };
 
-    // onend fires after silence or browser timeout — restart to keep listening
     rec.onend = () => {
       if (!state.active) return;
-      // 100ms delay prevents InvalidStateError on rapid restart
       setTimeout(() => {
         if (!state.active) return;
         try {
           state.recognition = createRecognition();
           state.recognition.start();
         } catch (e) {
-          // already started elsewhere — safe to ignore
+          // safe to ignore rapid restart errors
         }
       }, 100);
     };
@@ -549,34 +609,50 @@ function startVoiceScan() {
   state.recognition = createRecognition();
   state.recognition.start();
 
-  // tick every second: update duration display and quality hint
   state.interval = setInterval(() => {
     const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
     const words = state.transcript.trim().split(/\s+/).filter(Boolean).length;
 
     let quality;
-    if (elapsed < 15) quality = 'keep speaking…';
-    else if (elapsed < 30) quality = 'good, keep going';
-    else if (words < 40) quality = 'add more detail';
-    else quality = '✓ ready to stop';
+    if (elapsed < 15) {
+      quality = 'keep speaking...';
+    } else if (elapsed < 30) {
+      quality = 'good, keep going';
+    } else if (words < 40) {
+      quality = 'add more detail';
+    } else {
+      quality = '\u2713 ready to stop';
+    }
 
-    if (durationDisplay) durationDisplay.textContent = `${elapsed}s — ${quality}`;
+    if (durationDisplay) durationDisplay.textContent = elapsed + 's - ' + quality;
   }, 1000);
 }
 
 async function stopVoiceScan(submit = false) {
   const state = AppState.voiceScan;
   if (!state.active) return;
-  if (state.recognition) { state.recognition.onend = null; try { state.recognition.stop(); } catch (e) {} state.recognition = null; }
-  if (state.interval) { clearInterval(state.interval); state.interval = null; }
+
+  if (state.recognition) {
+    state.recognition.onend = null;
+    try { state.recognition.stop(); } catch (e) {}
+    state.recognition = null;
+  }
+  if (state.interval) {
+    clearInterval(state.interval);
+    state.interval = null;
+  }
 
   const ring = document.getElementById('voice-ring');
   const statusText = document.getElementById('voice-status-text');
   const btn = document.getElementById('btn-scan-voice');
   const wordCount = document.getElementById('voice-word-count');
-  ring?.classList.remove('active');
+
+  if (ring) ring.classList.remove('active');
   if (statusText) statusText.textContent = 'Press to start speaking';
-  if (btn) { btn.textContent = '🎙 Start Voice Recording'; btn.style.background = ''; }
+  if (btn) {
+    btn.textContent = '\ud83c\udfa9 Start Voice Recording';
+    btn.style.background = '';
+  }
   if (wordCount) wordCount.textContent = '';
 
   const duration = state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0;
@@ -585,16 +661,14 @@ async function stopVoiceScan(submit = false) {
   if (submit) {
     const words = state.transcript.trim().split(/\s+/).filter(Boolean).length;
     if (duration < 10 || words < 15) {
-      renderScanError('Voice recording too short. Please speak for at least 15–20 seconds about your skills and preferences.');
+      renderScanError('Voice recording too short. Please speak for at least 15-20 seconds about your skills and preferences.');
       return;
     }
     await runScanRequest('voice', state.transcript.trim(), duration);
   }
 }
 
-// ==========================================
-// JOBS — LOAD, FILTER, DISPLAY
-// ==========================================
+// jobs -- load, filter, display
 async function loadJobs() {
   const listEl = document.getElementById('jobs-list');
   const loadingEl = document.getElementById('jobs-loading');
@@ -602,16 +676,20 @@ async function loadJobs() {
   loadingEl.classList.remove('hidden');
 
   try {
-    const res = await fetch('/api/match-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile: AppState.userProfile }) });
+    const res = await fetch('/api/match-jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile: AppState.userProfile }),
+    });
     const data = await res.json();
     AppState.allJobs = data.jobs || [];
-  } catch {
+  } catch (err) {
     AppState.allJobs = MOCK_JOBS;
-  } finally {
-    loadingEl.classList.add('hidden');
-    renderJobs(getFilteredJobs());
-    updateJobToggleBtn();
   }
+
+  loadingEl.classList.add('hidden');
+  renderJobs(getFilteredJobs());
+  updateJobToggleBtn();
 }
 
 function getFilteredJobs() {
@@ -623,7 +701,6 @@ function getFilteredJobs() {
 
   let jobs = AppState.allJobs;
 
-  // If not showing all, filter to profile-matched needs
   if (!showAll && AppState.userProfile.abilityProfile) {
     const prefs = AppState.userProfile.accessibilityPrefs;
     const workplace = AppState.userProfile.workplaceEnv;
@@ -634,12 +711,11 @@ function getFilteredJobs() {
       if (prefs.includes('screen-reader') && !tags.includes('screen-reader-friendly') && !perks.includes('screen reader')) return false;
       return true;
     });
-    // If too few, fallback to all
     if (jobs.length < 3) jobs = AppState.allJobs;
   }
 
   return jobs.filter(job => {
-    const searchable = `${job.title} ${job.company} ${job.location} ${(job.perks || []).join(' ')}`.toLowerCase();
+    const searchable = (job.title + ' ' + job.company + ' ' + job.location + ' ' + (job.perks || []).join(' ')).toLowerCase();
     const matchSearch = !search || searchable.includes(search);
     const matchLoc = !location || job.location.toLowerCase().includes(location);
     const matchScore = !score || (job.match_score || job.base_pwd_score || 0) >= score;
@@ -648,7 +724,9 @@ function getFilteredJobs() {
   });
 }
 
-function filterJobs() { renderJobs(getFilteredJobs()); }
+function filterJobs() {
+  renderJobs(getFilteredJobs());
+}
 
 function toggleShowAllJobs() {
   AppState.showAllJobs = !AppState.showAllJobs;
@@ -659,7 +737,7 @@ function toggleShowAllJobs() {
 function updateJobToggleBtn() {
   const btn = document.getElementById('btn-toggle-all-jobs');
   if (!btn) return;
-  btn.textContent = AppState.showAllJobs ? '◎ Show Matched Only' : '◈ View All Jobs';
+  btn.textContent = AppState.showAllJobs ? 'Show Matched Only' : 'View All Jobs';
 }
 
 function renderJobs(jobs) {
@@ -675,49 +753,57 @@ function renderJobs(jobs) {
     const score = job.match_score || job.base_pwd_score || 70;
     const card = document.createElement('div');
     card.className = 'job-card';
-    card.setAttribute('role', 'button'); card.setAttribute('tabindex', '0');
-    card.setAttribute('aria-label', `${job.title} at ${job.company}, PWD score ${score}`);
-    const perksHtml = (job.perks || []).slice(0, 3).map(p => `<span class="perk-chip">${p}</span>`).join('');
-    const typeLabel = job.type ? `<span class="perk-chip" style="background:var(--accent-light);color:var(--accent)">${job.type}</span>` : '';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', job.title + ' at ' + job.company + ', PWD score ' + score);
+
+    const perksHtml = (job.perks || []).slice(0, 3).map(p => '<span class="perk-chip">' + p + '</span>').join('');
+    const typeLabel = job.type ? '<span class="perk-chip" style="background:var(--accent-light);color:var(--accent)">' + job.type + '</span>' : '';
+
+    let scoreClass = '';
+    if (score >= 90) scoreClass = 'score-high';
+    else if (score >= 80) scoreClass = 'score-med';
+
     card.innerHTML = `
       <div class="job-card-score">
-        <div class="score-circle ${score >= 90 ? 'score-high' : score >= 80 ? 'score-med' : ''}">${score}</div>
+        <div class="score-circle ${scoreClass}">${score}</div>
         <span class="score-label">PWD Score</span>
       </div>
       <div class="job-card-body">
         <h3>${job.title}</h3>
-        <p class="job-card-meta">${job.company} · ${job.location} · RM ${(job.salary_rm || 0).toLocaleString()}/mo</p>
+        <p class="job-card-meta">${job.company} &middot; ${job.location} &middot; RM ${(job.salary_rm || 0).toLocaleString()}/mo</p>
         <div class="job-card-perks">${typeLabel}${perksHtml}</div>
       </div>
-      <div class="job-card-action"><button class="btn-tag">View & Apply →</button></div>`;
+      <div class="job-card-action"><button class="btn-tag">View &amp; Apply &rarr;</button></div>`;
+
     card.addEventListener('click', () => openJobPortal(job));
-    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openJobPortal(job); });
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') openJobPortal(job);
+    });
     listEl.appendChild(card);
   });
 }
 
-// ==========================================
-// JOB APPLICATION PORTAL
-// ==========================================
+// job portal
 function openJobPortal(job) {
   AppState.currentJob = job;
   const score = job.match_score || job.base_pwd_score || 70;
 
   document.getElementById('jobs-list').classList.add('hidden');
-  document.querySelector('.jobs-filter-bar')?.classList.add('hidden');
+  const filterBar = document.querySelector('.jobs-filter-bar');
+  if (filterBar) filterBar.classList.add('hidden');
 
   document.getElementById('portal-job-title').textContent = job.title;
-  document.getElementById('portal-company').textContent = `${job.company} · ${job.location}`;
+  document.getElementById('portal-company').textContent = job.company + ' \u00b7 ' + job.location;
   document.getElementById('portal-job-type').textContent = job.type || '';
-  document.getElementById('portal-score-bar').style.width = `${score}%`;
-  document.getElementById('portal-score-num').textContent = `${score}/100`;
-  document.getElementById('portal-salary').textContent = `RM ${(job.salary_rm || 0).toLocaleString()}`;
-  document.getElementById('portal-perks').innerHTML = (job.perks || []).map(p => `<span class="perk-chip">${p}</span>`).join('');
+  document.getElementById('portal-score-bar').style.width = score + '%';
+  document.getElementById('portal-score-num').textContent = score + '/100';
+  document.getElementById('portal-salary').textContent = 'RM ' + (job.salary_rm || 0).toLocaleString();
+  document.getElementById('portal-perks').innerHTML = (job.perks || []).map(p => '<span class="perk-chip">' + p + '</span>').join('');
   document.getElementById('portal-description').textContent = job.description || '';
-  document.getElementById('portal-requirements').innerHTML = (job.requirements || []).map(r => `<li>${r}</li>`).join('');
+  document.getElementById('portal-requirements').innerHTML = (job.requirements || []).map(r => '<li>' + r + '</li>').join('');
   document.getElementById('portal-disability-statement').textContent = job.disability_statement || '';
 
-  // Compatibility insights
   const perkText = (job.perks || []).join(' ').toLowerCase();
   const insights = [];
   if (AppState.userProfile.workplaceEnv === 'remote' && perkText.includes('remote')) insights.push('Remote work preference matches this role');
@@ -726,29 +812,27 @@ function openJobPortal(job) {
   if (perkText.includes('quiet') || perkText.includes('focus')) insights.push('Quiet/focus-friendly environment available');
   if (perkText.includes('flexible')) insights.push('Flexible hours available');
   if (!insights.length) insights.push('Good overall accessibility match with your profile');
-  document.getElementById('portal-insights').innerHTML = insights.map(i => `<div class="insight-item"><span class="insight-dot"></span> ${i}</div>`).join('');
+  document.getElementById('portal-insights').innerHTML = insights.map(i => '<div class="insight-item"><span class="insight-dot"></span> ' + i + '</div>').join('');
 
-  // Profile highlights
   const strengthsEl = document.getElementById('portal-strengths');
   strengthsEl.innerHTML = '';
   const manual = (AppState.userProfile.skills || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
   const ai = (AppState.userProfile.abilityProfile?.strengths || []).slice(0, 2);
   [...manual, ...ai].slice(0, 5).forEach(s => {
     if (!s) return;
-    const pill = document.createElement('span'); pill.className = 'tag-pill'; pill.textContent = s;
+    const pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.textContent = s;
     strengthsEl.appendChild(pill);
   });
 
-  // Access prefs
   const prefs = AppState.userProfile.accessibilityPrefs.length ? AppState.userProfile.accessibilityPrefs : ['Keyboard navigation', 'Flexible timing'];
-  document.getElementById('portal-access').innerHTML = prefs.map(p => `<div class="pref-item"><span class="pref-dot accent"></span> ${p}</div>`).join('');
+  document.getElementById('portal-access').innerHTML = prefs.map(p => '<div class="pref-item"><span class="pref-dot accent"></span> ' + p + '</div>').join('');
 
-  // Pre-fill form
   document.getElementById('app-name').value = AppState.userProfile.name || '';
   document.getElementById('app-job').value = job.title;
   document.getElementById('app-company').value = job.company;
 
-  // AI assessment vs role feedback
   renderApplicationAssessment(job);
 
   document.getElementById('application-results').classList.add('hidden');
@@ -764,32 +848,39 @@ function renderApplicationAssessment(job) {
   const items = [];
 
   if (Object.keys(scores).length) {
-    const avg = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length);
-    items.push(`Assessment average: <strong>${avg}%</strong> — ${avg >= 75 ? 'Strong cognitive performance' : avg >= 55 ? 'Solid baseline' : 'Consider retaking assessments for a stronger profile'}`);
+    const vals = Object.values(scores);
+    const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+    let perfNote = '';
+    if (avg >= 75) perfNote = 'Strong cognitive performance';
+    else if (avg >= 55) perfNote = 'Solid baseline';
+    else perfNote = 'Consider retaking assessments for a stronger profile';
+    items.push('Assessment average: <strong>' + avg + '%</strong> - ' + perfNote);
   }
   if (ability && ability.confidence > 0) {
-    items.push(`AI profile confidence: <strong>${ability.confidence}%</strong>`);
-    if (ability.communication) items.push(`Communication match: ${ability.communication}`);
+    items.push('AI profile confidence: <strong>' + ability.confidence + '%</strong>');
+    if (ability.communication) items.push('Communication match: ' + ability.communication);
   }
 
-  el.innerHTML = items.length
-    ? items.map(i => `<div class="insight-item"><span class="insight-dot"></span> <span>${i}</span></div>`).join('')
-    : '<div class="insight-item" style="color:var(--text-muted)">Complete the AI scan and assessments to get personalised fit feedback for this role.</div>';
+  if (items.length) {
+    el.innerHTML = items.map(i => '<div class="insight-item"><span class="insight-dot"></span> <span>' + i + '</span></div>').join('');
+  } else {
+    el.innerHTML = '<div class="insight-item" style="color:var(--text-muted)">Complete the AI scan and assessments to get personalised fit feedback for this role.</div>';
+  }
 }
 
 function closeJobPortal() {
   AppState.currentJob = null;
   document.getElementById('job-portal').classList.add('hidden');
   document.getElementById('jobs-list').classList.remove('hidden');
-  document.querySelector('.jobs-filter-bar')?.classList.remove('hidden');
+  const filterBar = document.querySelector('.jobs-filter-bar');
+  if (filterBar) filterBar.classList.remove('hidden');
 }
 
-// ==========================================
-// JOB APPLICATION LETTER (not accommodation)
-// ==========================================
+// cover letter
 async function generateApplication() {
   const btn = document.getElementById('btn-generate-app');
-  btn.textContent = 'Drafting letter…'; btn.disabled = true;
+  btn.textContent = 'Drafting letter...';
+  btn.disabled = true;
 
   const payload = {
     name: document.getElementById('app-name').value || AppState.userProfile.name || 'Applicant',
@@ -800,31 +891,27 @@ async function generateApplication() {
   };
 
   try {
-    const res = await fetch('/api/generate-application', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const res = await fetch('/api/generate-application', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
     const data = await res.json();
     document.getElementById('application-output').textContent = data.letter;
-  } catch {
+  } catch (err) {
     document.getElementById('application-output').textContent = buildFallbackApplication(payload);
   }
 
   document.getElementById('application-results').classList.remove('hidden');
   document.getElementById('application-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  btn.textContent = 'Generate Cover Letter'; btn.disabled = false;
+  btn.textContent = 'Generate Cover Letter';
+  btn.disabled = false;
 }
 
 function buildFallbackApplication({ name, job_title, company, cover_note }) {
   const strengths = AppState.userProfile.abilityProfile?.strengths?.join(', ') || AppState.userProfile.skills || 'strong analytical and communication skills';
-  const extra = cover_note?.trim() ? `\n\n${cover_note}` : '';
-  return `Dear Hiring Team at ${company},
-
-I am writing to express my strong interest in the ${job_title} position. My background and skills — including ${strengths} — make me confident I can contribute meaningfully to your team.${extra}
-
-I would welcome the opportunity to discuss my application further and am happy to participate in an interview format that works best for your team.
-
-Thank you sincerely for your consideration.
-
-Warm regards,
-${name}`;
+  const extra = cover_note?.trim() ? '\n\n' + cover_note : '';
+  return 'Dear Hiring Team at ' + company + ',\n\nI am writing to express my strong interest in the ' + job_title + ' position. My background and skills, including ' + strengths + ', make me confident I can contribute meaningfully to your team.' + extra + '\n\nI would welcome the opportunity to discuss my application further and am happy to participate in an interview format that works best for your team.\n\nThank you sincerely for your consideration.\n\nWarm regards,\n' + name;
 }
 
 function copyApplication() {
@@ -836,9 +923,7 @@ function copyApplication() {
   });
 }
 
-// ==========================================
-// ASSESSMENTS — improved scoring
-// ==========================================
+// assessments
 const ASSESSMENT_BANKS = {
   patterns: [
     { q: 'What comes next: 2, 4, 8, 16, ___?', options: ['20', '32', '24', '18'], answer: 1 },
@@ -854,7 +939,7 @@ const ASSESSMENT_BANKS = {
     { q: 'A bat and ball cost RM 1.10. Bat costs RM 1.00 more than ball. How much is the ball?', options: ['10 sen', '5 sen', '15 sen', '20 sen'], answer: 1 },
     { q: 'If some cats are black and some black things are tables, are some cats tables?', options: ['Yes', 'No', 'Cannot be determined', 'Sometimes'], answer: 2 },
     { q: 'Which is the strongest argument for public libraries?', options: ['They are old', 'They offer free access to knowledge for everyone', 'Books are cheaper than digital', 'Librarians are helpful'], answer: 1 },
-    { q: 'Rearrange CIFNOA — you get the name of a(n):', options: ['City', 'Animal', 'Ocean', 'Planet'], answer: 2 },
+    { q: 'Rearrange CIFNOA - you get the name of a(n):', options: ['City', 'Animal', 'Ocean', 'Planet'], answer: 2 },
     { q: 'What is always in the future, never in the past?', options: ['Yesterday', 'Tomorrow', 'Today', 'Now'], answer: 1 },
     { q: 'A is taller than B. B is taller than C. Who is shortest?', options: ['A', 'B', 'C', 'Cannot tell'], answer: 2 },
   ],
@@ -869,13 +954,13 @@ const ASSESSMENT_BANKS = {
 
 const MEMORY_STUDY_SETS = [
   {
-    items: ['🐘 Elephant', '🔑 Key', '🌙 Moon', '🎸 Guitar', '🍎 Apple', '✈️ Aeroplane'],
+    items: ['\ud83d\udc18 Elephant', '\ud83d\udd11 Key', '\ud83c\udf19 Moon', '\ud83c\udfb8 Guitar', '\ud83c\udf4e Apple', '\u2708\ufe0f Aeroplane'],
     questions: [
-      { q: 'Which of these was in the list?', options: ['🚀 Rocket', '🎸 Guitar', '🎯 Target', '🌊 Wave'], answer: 1 },
-      { q: 'What animal appeared?', options: ['🐕 Dog', '🐈 Cat', '🐘 Elephant', '🦁 Lion'], answer: 2 },
-      { q: 'Which item relates to travel?', options: ['🌙 Moon', '✈️ Aeroplane', '🔑 Key', '🍎 Apple'], answer: 1 },
+      { q: 'Which of these was in the list?', options: ['\ud83d\ude80 Rocket', '\ud83c\udfb8 Guitar', '\ud83c\udfaf Target', '\ud83c\udf0a Wave'], answer: 1 },
+      { q: 'What animal appeared?', options: ['\ud83d\udc15 Dog', '\ud83d\udc08 Cat', '\ud83d\udc18 Elephant', '\ud83e\udd81 Lion'], answer: 2 },
+      { q: 'Which item relates to travel?', options: ['\ud83c\udf19 Moon', '\u2708\ufe0f Aeroplane', '\ud83d\udd11 Key', '\ud83c\udf4e Apple'], answer: 1 },
       { q: 'How many items were in the list?', options: ['4', '5', '6', '7'], answer: 2 },
-      { q: 'Which was NOT in the list?', options: ['🔑 Key', '🌙 Moon', '🎸 Guitar', '🎯 Target'], answer: 3 },
+      { q: 'Which was NOT in the list?', options: ['\ud83d\udd11 Key', '\ud83c\udf19 Moon', '\ud83c\udfb8 Guitar', '\ud83c\udfaf Target'], answer: 3 },
     ],
   },
   {
@@ -893,18 +978,34 @@ const MEMORY_STUDY_SETS = [
 let timedMode = false;
 let currentMemorySet = null;
 
-function toggleTiming(checkbox) { timedMode = checkbox.checked; checkbox.setAttribute('aria-checked', checkbox.checked.toString()); }
-function toggleReducedSensory(checkbox) { checkbox.setAttribute('aria-checked', checkbox.checked.toString()); document.body.classList.toggle('reduced-motion', checkbox.checked); }
+function toggleTiming(checkbox) {
+  timedMode = checkbox.checked;
+  checkbox.setAttribute('aria-checked', checkbox.checked.toString());
+}
+
+function toggleReducedSensory(checkbox) {
+  checkbox.setAttribute('aria-checked', checkbox.checked.toString());
+  document.body.classList.toggle('reduced-motion', checkbox.checked);
+}
 
 function startAssessment(type) {
   const state = AppState.assessmentState;
   if (state.studyTimerInterval) clearInterval(state.studyTimerInterval);
   if (state.timerInterval) clearInterval(state.timerInterval);
 
-  if (type === 'memory') { startMemoryStudyPhase(); return; }
+  if (type === 'memory') {
+    startMemoryStudyPhase();
+    return;
+  }
 
   const qs = ASSESSMENT_BANKS[type] || [];
-  Object.assign(state, { type, questions: qs, currentIndex: 0, answers: new Array(qs.length).fill(null), timerInterval: null, timeLeft: 120, startTime: Date.now() });
+  state.type = type;
+  state.questions = qs;
+  state.currentIndex = 0;
+  state.answers = new Array(qs.length).fill(null);
+  state.timerInterval = null;
+  state.timeLeft = 120;
+  state.startTime = Date.now();
 
   document.getElementById('assessment-home').classList.add('hidden');
   document.getElementById('memory-study-phase').classList.add('hidden');
@@ -912,7 +1013,10 @@ function startAssessment(type) {
   document.getElementById('assessment-results').classList.add('hidden');
 
   renderQuestion();
-  if (timedMode) { document.getElementById('timer-display').classList.remove('hidden'); startTimer(); }
+  if (timedMode) {
+    document.getElementById('timer-display').classList.remove('hidden');
+    startTimer();
+  }
 }
 
 function startMemoryStudyPhase() {
@@ -935,26 +1039,44 @@ function startMemoryStudyPhase() {
   const timerEl = document.getElementById('study-timer');
   const barFill = document.getElementById('study-bar-fill');
   const barLabel = document.getElementById('study-bar-label');
-  timerEl.textContent = `${timeLeft}s`;
+  timerEl.textContent = timeLeft + 's';
 
   const interval = setInterval(() => {
     timeLeft--;
-    timerEl.textContent = `${timeLeft}s`;
-    barFill.style.width = `${(timeLeft / 15) * 100}%`;
-    if (timeLeft <= 5) barLabel.textContent = `${timeLeft} seconds left — final look!`;
-    if (timeLeft <= 0) { clearInterval(interval); AppState.assessmentState.studyTimerInterval = null; startMemoryTestPhase(); }
+    timerEl.textContent = timeLeft + 's';
+    barFill.style.width = ((timeLeft / 15) * 100) + '%';
+    if (timeLeft <= 5) {
+      barLabel.textContent = timeLeft + ' seconds left - final look!';
+    }
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      AppState.assessmentState.studyTimerInterval = null;
+      startMemoryTestPhase();
+    }
   }, 1000);
+
   AppState.assessmentState.studyTimerInterval = interval;
 }
 
 function startMemoryTestPhase() {
   const qs = currentMemorySet.questions;
   const state = AppState.assessmentState;
-  Object.assign(state, { type: 'memory', questions: qs, currentIndex: 0, answers: new Array(qs.length).fill(null), timerInterval: null, timeLeft: 90, startTime: Date.now() });
+  state.type = 'memory';
+  state.questions = qs;
+  state.currentIndex = 0;
+  state.answers = new Array(qs.length).fill(null);
+  state.timerInterval = null;
+  state.timeLeft = 90;
+  state.startTime = Date.now();
+
   document.getElementById('memory-study-phase').classList.add('hidden');
   document.getElementById('assessment-active').classList.remove('hidden');
   renderQuestion();
-  if (timedMode) { state.timeLeft = 90; document.getElementById('timer-display').classList.remove('hidden'); startTimer(); }
+
+  if (timedMode) {
+    document.getElementById('timer-display').classList.remove('hidden');
+    startTimer();
+  }
 }
 
 function renderQuestion() {
@@ -963,19 +1085,21 @@ function renderQuestion() {
   const total = state.questions.length;
   const idx = state.currentIndex;
 
-  document.getElementById('assess-progress-bar').style.width = `${(idx / total) * 100}%`;
-  document.getElementById('assess-progress-text').textContent = `Question ${idx + 1} of ${total}`;
+  document.getElementById('assess-progress-bar').style.width = ((idx / total) * 100) + '%';
+  document.getElementById('assess-progress-text').textContent = 'Question ' + (idx + 1) + ' of ' + total;
 
   const body = document.getElementById('assessment-body');
   body.innerHTML = '';
   const qText = document.createElement('p');
-  qText.className = 'question-text'; qText.style.whiteSpace = 'pre-wrap'; qText.textContent = q.q;
+  qText.className = 'question-text';
+  qText.style.whiteSpace = 'pre-wrap';
+  qText.textContent = q.q;
   body.appendChild(qText);
 
   if (q.type === 'open' || q.type === 'typing') {
     const ta = document.createElement('textarea');
     ta.style.cssText = 'width:100%;padding:0.75rem;border:1.5px solid var(--border);border-radius:var(--radius);font-family:var(--font-sans);font-size:0.95rem;resize:vertical;min-height:90px;background:var(--bg);color:var(--text-primary)';
-    ta.placeholder = q.type === 'typing' ? 'Type exactly as shown above…' : 'Your answer…';
+    ta.placeholder = q.type === 'typing' ? 'Type exactly as shown above...' : 'Your answer...';
     ta.addEventListener('input', () => { state.answers[idx] = ta.value; });
     if (state.answers[idx]) ta.value = state.answers[idx];
     body.appendChild(ta);
@@ -1003,22 +1127,35 @@ function renderQuestion() {
 
 function nextQuestion() {
   const state = AppState.assessmentState;
-  state.currentIndex < state.questions.length - 1 ? (state.currentIndex++, renderQuestion()) : finishAssessment();
+  if (state.currentIndex < state.questions.length - 1) {
+    state.currentIndex++;
+    renderQuestion();
+  } else {
+    finishAssessment();
+  }
 }
+
 function prevQuestion() {
   const state = AppState.assessmentState;
-  if (state.currentIndex > 0) { state.currentIndex--; renderQuestion(); }
+  if (state.currentIndex > 0) {
+    state.currentIndex--;
+    renderQuestion();
+  }
 }
+
 function startTimer() {
   const state = AppState.assessmentState;
   const timerEl = document.getElementById('timer-display');
-  const fmt = s => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+  const fmt = s => Math.floor(s / 60) + ':' + (s % 60).toString().padStart(2, '0');
   timerEl.textContent = fmt(state.timeLeft);
   state.timerInterval = setInterval(() => {
     state.timeLeft--;
     timerEl.textContent = fmt(state.timeLeft);
     if (state.timeLeft <= 30) timerEl.classList.add('urgent');
-    if (state.timeLeft <= 0) { clearInterval(state.timerInterval); finishAssessment(); }
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
+      finishAssessment();
+    }
   }, 1000);
 }
 
@@ -1033,18 +1170,18 @@ function finishAssessment() {
   const { questions, answers, type, startTime } = state;
   const timeTaken = startTime ? Math.round((Date.now() - startTime) / 1000) : null;
 
-  // Score MCQ questions
-  let mcqCorrect = 0, mcqTotal = 0;
-  // Score typing questions separately
-  let typingCorrect = 0, typingTotal = 0;
+  let mcqCorrect = 0;
+  let mcqTotal = 0;
+  let typingCorrect = 0;
+  let typingTotal = 0;
 
   questions.forEach((q, i) => {
     if (q.type === 'typing' && q.target) {
       typingTotal++;
       const userAns = (answers[i] || '').trim();
-      // Similarity check: full match = 100%, partial = proportional
-      if (userAns === q.target) typingCorrect += 1;
-      else {
+      if (userAns === q.target) {
+        typingCorrect += 1;
+      } else {
         const maxLen = Math.max(userAns.length, q.target.length);
         let matches = 0;
         for (let c = 0; c < Math.min(userAns.length, q.target.length); c++) {
@@ -1061,7 +1198,6 @@ function finishAssessment() {
   const openAnswered = questions.filter((q, i) => q.type === 'open' && answers[i] && answers[i].trim().length > 5).length;
   const openTotal = questions.filter(q => q.type === 'open').length;
 
-  // Weighted score
   let scorePct = null;
   if (mcqTotal > 0 || typingTotal > 0) {
     const mcqScore = mcqTotal > 0 ? (mcqCorrect / mcqTotal) : 0;
@@ -1079,15 +1215,16 @@ function finishAssessment() {
   const scoresEl = document.getElementById('result-scores-display');
   scoresEl.innerHTML = '';
   const metrics = [];
-  if (scorePct !== null) metrics.push({ num: `${scorePct}%`, label: 'Score' });
-  if (mcqTotal) metrics.push({ num: `${mcqCorrect}/${mcqTotal}`, label: 'MCQ Correct' });
-  if (typingTotal) metrics.push({ num: `${Math.round((typingCorrect / typingTotal) * 100)}%`, label: 'Typing Accuracy' });
-  if (openTotal) metrics.push({ num: `${openAnswered}/${openTotal}`, label: 'Open Responses' });
-  if (timeTaken) metrics.push({ num: `${timeTaken}s`, label: 'Time Taken' });
+  if (scorePct !== null) metrics.push({ num: scorePct + '%', label: 'Score' });
+  if (mcqTotal) metrics.push({ num: mcqCorrect + '/' + mcqTotal, label: 'MCQ Correct' });
+  if (typingTotal) metrics.push({ num: Math.round((typingCorrect / typingTotal) * 100) + '%', label: 'Typing Accuracy' });
+  if (openTotal) metrics.push({ num: openAnswered + '/' + openTotal, label: 'Open Responses' });
+  if (timeTaken) metrics.push({ num: timeTaken + 's', label: 'Time Taken' });
+
   metrics.forEach(m => {
     const item = document.createElement('div');
     item.className = 'result-score-item';
-    item.innerHTML = `<span class="result-score-num">${m.num}</span><span class="result-score-label">${m.label}</span>`;
+    item.innerHTML = '<span class="result-score-num">' + m.num + '</span><span class="result-score-label">' + m.label + '</span>';
     scoresEl.appendChild(item);
   });
 
@@ -1095,15 +1232,24 @@ function finishAssessment() {
   const typeLabels = { patterns: 'Pattern Recognition', reasoning: 'Logical Reasoning', memory: 'Memory & Recall', typing: 'Interaction Analysis' };
   if (scorePct !== null) {
     let msg = '';
-    if (scorePct >= 80) msg = `✓ Strong ${typeLabels[type] || ''} performance — this is a notable strength for your profile.`;
-    else if (scorePct >= 60) msg = `Good result. ${typeLabels[type] || 'Assessment'} competency is solid.`;
-    else if (scorePct !== null) msg = `Results recorded. These assessments show how you work, not your worth. Consider retrying after a break.`;
+    if (scorePct >= 80) {
+      msg = 'Strong ' + (typeLabels[type] || '') + ' performance - this is a notable strength for your profile.';
+    } else if (scorePct >= 60) {
+      msg = 'Good result. ' + (typeLabels[type] || 'Assessment') + ' competency is solid.';
+    } else {
+      msg = 'Results recorded. These assessments show how you work, not your worth. Consider retrying after a break.';
+    }
     breakdown.textContent = msg;
   } else if (openTotal > 0) {
-    breakdown.textContent = `Open responses recorded (${openAnswered} answered). These inform your profile.`;
+    breakdown.textContent = 'Open responses recorded (' + openAnswered + ' answered). These inform your profile.';
   }
 
-  fetch('/api/save-assessment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, score: scorePct, answers: answers.length, timeTaken }) }).catch(() => {});
+  fetch('/api/save-assessment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, score: scorePct, answers: answers.length, timeTaken }),
+  }).catch(() => {});
+
   document.getElementById('assessment-results').classList.remove('hidden');
 }
 
@@ -1111,26 +1257,33 @@ function updateAssessmentScoreDisplays() {
   const scores = AppState.assessmentScores;
   const entries = Object.entries(scores);
   if (!entries.length) return;
+
   const avg = Math.round(entries.reduce((sum, [, v]) => sum + v, 0) / entries.length);
-  const labelMap = { patterns: 'Pattern Recognition', reasoning: 'Logical Reasoning', memory: 'Memory & Recall', typing: 'Interaction Analysis' };
+  const labelMap = {
+    patterns: 'Pattern Recognition',
+    reasoning: 'Logical Reasoning',
+    memory: 'Memory & Recall',
+    typing: 'Interaction Analysis',
+  };
 
   const numEl = document.getElementById('assessment-score-number');
   const overallEl = document.getElementById('assessment-overall-score');
-  if (numEl) numEl.textContent = `${avg}%`;
+  if (numEl) numEl.textContent = avg + '%';
   if (overallEl) overallEl.classList.remove('hidden');
 
   const card = document.getElementById('profile-assessment-card');
   const barsEl = document.getElementById('profile-assessment-scores');
   const overallPct = document.getElementById('profile-overall-pct');
+
   if (card && barsEl) {
     barsEl.innerHTML = '';
     entries.forEach(([t, pct]) => {
       const row = document.createElement('div');
       row.className = 'style-bar-row';
-      row.innerHTML = `<span>${labelMap[t] || t}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-val">${pct}%</span>`;
+      row.innerHTML = '<span>' + (labelMap[t] || t) + '</span><div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div><span class="bar-val">' + pct + '%</span>';
       barsEl.appendChild(row);
     });
-    if (overallPct) overallPct.textContent = `${avg}%`;
+    if (overallPct) overallPct.textContent = avg + '%';
     card.style.display = '';
   }
 }
@@ -1143,6 +1296,7 @@ function exitAssessment() {
   document.getElementById('timer-display').classList.remove('urgent');
   backToAssessments();
 }
+
 function backToAssessments() {
   document.getElementById('assessment-active').classList.add('hidden');
   document.getElementById('assessment-results').classList.add('hidden');
@@ -1150,50 +1304,49 @@ function backToAssessments() {
   document.getElementById('assessment-home').classList.remove('hidden');
 }
 
-// ==========================================
-// ACCESSIBILITY SETTINGS
-// ==========================================
+// accessibility settings
 function adjustFontSize(delta) {
   AppState.fontSize = Math.min(24, Math.max(14, AppState.fontSize + delta));
-  document.documentElement.style.fontSize = `${AppState.fontSize}px`;
-  document.getElementById('font-size-display').textContent = `${AppState.fontSize}px`;
+  document.documentElement.style.fontSize = AppState.fontSize + 'px';
+  document.getElementById('font-size-display').textContent = AppState.fontSize + 'px';
 }
-function toggleHighContrast(checkbox) { document.body.classList.toggle('high-contrast', checkbox.checked); }
-function toggleMotion(checkbox) { document.body.classList.toggle('reduced-motion', checkbox.checked); }
-function toggleKeyboardMode(checkbox) {}
-function toggleVoiceInput(checkbox) {}
-function toggleDyslexiaFont(checkbox) { document.body.classList.toggle('dyslexia-font', checkbox.checked); }
-function toggleLineSpacing(checkbox) { document.body.classList.toggle('line-spacing-enhanced', checkbox.checked); }
 
-// ==========================================
-// OFFLINE MOCK DATA
-// ==========================================
+function toggleHighContrast(checkbox) {
+  document.body.classList.toggle('high-contrast', checkbox.checked);
+}
+
+function toggleMotion(checkbox) {
+  document.body.classList.toggle('reduced-motion', checkbox.checked);
+}
+
+function toggleKeyboardMode(checkbox) {}
+
+function toggleVoiceInput(checkbox) {}
+
+function toggleDyslexiaFont(checkbox) {
+  document.body.classList.toggle('dyslexia-font', checkbox.checked);
+}
+
+function toggleLineSpacing(checkbox) {
+  document.body.classList.toggle('line-spacing-enhanced', checkbox.checked);
+}
+
+// offline mock data
 const MOCK_JOBS = [
   { id: 'job_001', title: 'Junior Web Developer', company: 'Codify Sdn Bhd', location: 'Fully Remote', salary_rm: 3200, match_score: 94, type: 'Full-time', tags: ['remote', 'async', 'keyboard-friendly'], perks: ['Fully remote', 'Async-first communication', 'Screen reader & keyboard-nav compatible'], description: 'Build and maintain client web applications.', requirements: ['HTML/CSS/JS basics', 'Git fundamentals'], disability_statement: 'We actively encourage PWD applications. All accommodations provided.' },
   { id: 'job_002', title: 'Data Entry & Quality Analyst', company: 'Prisma Analytics', location: 'Kuala Lumpur (Hybrid)', salary_rm: 2800, match_score: 88, type: 'Full-time', tags: ['hybrid', 'quiet', 'wheelchair-accessible'], perks: ['Wheelchair accessible office', 'Ergonomic workstation', 'Quiet focus pods'], description: 'Review and validate datasets for accuracy.', requirements: ['Attention to detail', 'Basic Excel'], disability_statement: 'OKU-friendly employer. Transport allowance available.' },
-  { id: 'job_003', title: 'Customer Support (Chat Only)', company: 'HelpDesk Heroes', location: 'Fully Remote', salary_rm: 2600, match_score: 91, type: 'Full-time', tags: ['remote', 'text-only', 'deaf-friendly'], perks: ['Text-based only — no calls', 'Work from home', 'Flexible shifts'], description: 'Handle enquiries via live chat and email.', requirements: ['Strong written English', 'Empathy'], disability_statement: 'No voice calls ever. Deaf and HoH applicants welcome.' },
-  { id: 'job_004', title: 'Content Writer (Freelance)', company: 'Wordsmiths Malaysia', location: 'Fully Remote', salary_rm: 2400, match_score: 93, type: 'Freelance', tags: ['remote', 'flexible', 'async'], perks: ['Fully flexible hours', 'Written briefs — no meetings', 'Pay per article'], description: 'Write blog articles and social content for Malaysian brands.', requirements: ['Strong written skills', 'Ability to research'], disability_statement: 'Any disability welcome. Deadline extensions available.' },
+  { id: 'job_003', title: 'Customer Support (Chat Only)', company: 'HelpDesk Heroes', location: 'Fully Remote', salary_rm: 2600, match_score: 91, type: 'Full-time', tags: ['remote', 'text-only', 'deaf-friendly'], perks: ['Text-based only - no calls', 'Work from home', 'Flexible shifts'], description: 'Handle enquiries via live chat and email.', requirements: ['Strong written English', 'Empathy'], disability_statement: 'No voice calls ever. Deaf and HoH applicants welcome.' },
+  { id: 'job_004', title: 'Content Writer (Freelance)', company: 'Wordsmiths Malaysia', location: 'Fully Remote', salary_rm: 2400, match_score: 93, type: 'Freelance', tags: ['remote', 'flexible', 'async'], perks: ['Fully flexible hours', 'Written briefs - no meetings', 'Pay per article'], description: 'Write blog articles and social content for Malaysian brands.', requirements: ['Strong written skills', 'Ability to research'], disability_statement: 'Any disability welcome. Deadline extensions available.' },
   { id: 'job_005', title: 'E-Commerce Product Lister', company: 'Shoplink MY', location: 'Fully Remote', salary_rm: 2100, match_score: 89, type: 'Part-time', tags: ['remote', 'output-based', 'no-calls'], perks: ['Output-based, self-paced', 'No calls or video', 'Performance bonuses'], description: 'Upload and optimise product listings on Shopee and Lazada.', requirements: ['Basic computer skills', 'Attention to detail'], disability_statement: 'Specifically designed to be fully accessible for PWD candidates.' },
   { id: 'job_006', title: 'Research Assistant (WFH)', company: 'Insight Lab Malaysia', location: 'Fully Remote', salary_rm: 2500, match_score: 90, type: 'Contract', tags: ['remote', 'text-only', 'screen-reader-friendly'], perks: ['100% remote', 'Written-only communication', 'Self-paced deliverables'], description: 'Conduct literature reviews and summarise research reports.', requirements: ['University degree', 'Strong reading comprehension'], disability_statement: 'Strongly encourage OKU applicants. Screen reader & extended deadline support.' },
 ];
 
-// ==========================================
-// UTILS
-// ==========================================
-function capitalise(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+// utils
+function capitalise(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+}
 
-// ==========================================
-// INIT
-// ==========================================
+// init
 (function init() {
   navigate('home');
-
-  // Keyboard shortcut hint in nav footer
-  const footer = document.querySelector('.sidebar-footer');
-  if (footer) {
-    const hint = document.createElement('p');
-    hint.style.cssText = 'font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem';
-    hint.textContent = 'Alt+R: Read page aloud';
-    footer.appendChild(hint);
-  }
 })();

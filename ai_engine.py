@@ -14,16 +14,20 @@ def _groq_chat(prompt: str, max_tokens: int = 700) -> str:
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.4,
     }).encode("utf-8")
+
     req = urllib.request.Request(
-        GROQ_URL, data=payload,
+        GROQ_URL,
+        data=payload,
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {GROQ_API_KEY}",
         },
         method="POST",
     )
+
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read().decode("utf-8"))
+
     return data["choices"][0]["message"]["content"].strip()
 
 
@@ -124,18 +128,17 @@ JOB_DATABASE = [
 class AbilityProfiler:
     STRENGTH_POOLS = {
         "voice": ["Clear verbal articulation", "Auditory processing strength", "Narrative structuring ability", "Active listening indicators", "Verbal reasoning aptitude"],
-        "text": ["Detail-oriented written expression", "Structured logical thinking", "Strong written communication", "Analytical and reflective reasoning", "Systematic problem-solving"],
+        "text": ["Written communication clarity", "Structured thinking", "Detail orientation", "Analytical depth", "Reflective self-awareness"],
     }
 
     def generate(self, input_type: str, content: str) -> dict:
         content = content.strip()
-
         word_count = len(content.split())
         unique_words = len(set(content.lower().split()))
         unique_ratio = unique_words / max(word_count, 1)
 
-        # reject gibberish or very short input
-        if word_count < 15 or unique_ratio < 0.4:
+        # reject very short or repetitive input (lowered threshold)
+        if word_count < 8 or unique_ratio < 0.4:
             return {
                 "mobility": "Insufficient input",
                 "sensory": "Insufficient input",
@@ -143,7 +146,7 @@ class AbilityProfiler:
                 "strengths": ["More meaningful input needed"],
                 "confidence": 0,
                 "error": "insufficient_input",
-                "message": "Please describe your skills and work preferences in real sentences - at least a short paragraph.",
+                "message": "Please write a bit more about yourself - at least a couple of sentences.",
             }
 
         try:
@@ -196,16 +199,27 @@ Respond ONLY with valid JSON (no markdown, no backticks, no extra keys):
     def _fallback(self, input_type: str, word_count: int) -> dict:
         pool = self.STRENGTH_POOLS.get(input_type, self.STRENGTH_POOLS["text"])
         selected = random.sample(pool, min(3, len(pool)))
+
         if word_count < 30:
             confidence = 55
         elif word_count < 60:
             confidence = 65
         else:
             confidence = 72
+
+        if input_type == "text":
+            mobility = "Keyboard-primary navigation preferred"
+            sensory = "Text-based processing preference"
+            communication = "Written communication preference"
+        else:
+            mobility = "Voice navigation preferred"
+            sensory = "Auditory processing preference"
+            communication = "Verbal communication preferred"
+
         return {
-            "mobility": "Keyboard-primary navigation preferred" if input_type == "text" else "Voice navigation preferred",
-            "sensory": "Text-based processing preference" if input_type == "text" else "Auditory processing preference",
-            "communication": "Written communication preference" if input_type == "text" else "Verbal communication preferred",
+            "mobility": mobility,
+            "sensory": sensory,
+            "communication": communication,
             "strengths": selected,
             "confidence": confidence,
         }
@@ -231,12 +245,16 @@ class JobMatcher:
         ai_strengths = " ".join(ability.get("strengths", [])).lower()
 
         boost = 0
+
         if "remote" in workplace and "remote" in perk_text:
             boost += 5
+
         if "quiet" in workplace and "quiet" in perk_text:
             boost += 3
+
         if "async" in comm and "async" in perk_text:
             boost += 3
+
         if "hybrid" in workplace and "hybrid" in perk_text:
             boost += 2
 
@@ -248,8 +266,10 @@ class JobMatcher:
 
         prefs = profile.get("accessibilityPrefs", [])
         tags = job.get("tags", [])
+
         if "screen-reader" in prefs and "screen-reader-friendly" in tags:
             boost += 3
+
         if "keyboard-nav" in prefs and "keyboard-friendly" in tags:
             boost += 2
 

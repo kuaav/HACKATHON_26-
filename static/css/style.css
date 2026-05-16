@@ -752,16 +752,7 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
   position: relative;
   width: 60px; height: 60px;
 }
-.ring-label {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent);
-}
+
 
 .pref-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .pref-item {
@@ -933,30 +924,7 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
   50% { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(74,124,89,0); }
 }
 
-.camera-preview {
-  background: var(--bg-alt);
-  border-radius: var(--radius-lg);
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  border: 1px dashed var(--border-strong);
-}
-.camera-guide {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-.face-guide-circle {
-  width: 100px; height: 120px;
-  border-radius: 50%;
-  border: 2px dashed var(--accent);
-  opacity: 0.5;
-}
+
 
 .result-banner {
   display: flex;
