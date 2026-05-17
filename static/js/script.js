@@ -1,5 +1,3 @@
-/* AbilityBridge -- script.js */
-
 // app state
 const AppState = {
   isLoggedIn: false,
