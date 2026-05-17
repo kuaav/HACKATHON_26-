@@ -1,18 +1,10 @@
-/* ==========================================================================
-   AbilityBridge — Main Stylesheet
-   Light-theme, accessibility-first SaaS dashboard
-   ========================================================================== */
-
-/* ==========================================
-   DESIGN TOKENS
-   ========================================== */
 :root {
   /* Core palette — soft ivory/warm light */
-  --bg:           #f7f5f2;
-  --bg-alt:       #eeebe6;
-  --surface:      #ffffff;
+  --bg:   #f7f5f2;
+  --bg-alt:   #eeebe6;
+  --surface:  #ffffff;
   --surface-2:    #faf9f7;
-  --border:       #e2ddd7;
+  --border:   #e2ddd7;
   --border-strong:#c9c3bb;
 
   /* Sidebar */
@@ -22,12 +14,12 @@
   --sidebar-hover: rgba(255,255,255,0.07);
 
   /* Accent — warm sage green */
-  --accent:       #4a7c59;
+  --accent:   #4a7c59;
   --accent-light: rgba(74, 124, 89, 0.12);
   --accent-hover: #3d6849;
 
   /* Secondary accent — dusty rose */
-  --accent2:      #b05e6e;
+  --accent2:  #b05e6e;
   --accent2-light:rgba(176, 94, 110, 0.1);
 
   /* Text */
@@ -37,20 +29,20 @@
   --text-inverse: #ffffff;
 
   /* Semantic */
-  --success:      #4a7c59;
-  --warning:      #c47c2e;
-  --error:        #b05e6e;
+  --success:  #4a7c59;
+  --warning:  #c47c2e;
+  --error:    #b05e6e;
 
   /* Radius */
   --radius-sm:    6px;
-  --radius:       12px;
+  --radius:   12px;
   --radius-lg:    18px;
   --radius-xl:    24px;
   --radius-pill:  999px;
 
   /* Shadows */
   --shadow-sm:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow:       0 4px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+  --shadow:   0 4px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
   --shadow-lg:    0 12px 32px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.05);
 
   /* Layout */
@@ -88,9 +80,9 @@ body.line-spacing-enhanced {
   line-height: 1.9 !important;
 }
 
-/* ==========================================
+/* 
    RESET & BASE
-   ========================================== */
+    */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -112,9 +104,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ==========================================
+/* 
    ACCESSIBILITY — FOCUS STATES
-   ========================================== */
+    */
 *:focus-visible {
   outline: 3px solid var(--accent) !important;
   outline-offset: 3px;
@@ -136,9 +128,9 @@ body {
 }
 .skip-link:focus { top: 1rem; }
 
-/* ==========================================
+/* 
    SIDEBAR
-   ========================================== */
+    */
 .sidebar {
   width: var(--sidebar-w);
   background: var(--sidebar-bg);
@@ -247,9 +239,9 @@ body {
   text-align: center;
 }
 
-/* ==========================================
+/* 
    MAIN CONTENT AREA
-   ========================================== */
+    */
 .main-content {
   margin-left: var(--sidebar-w);
   flex: 1;
@@ -266,9 +258,9 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ==========================================
+/* 
    PAGE HEADER
-   ========================================== */
+    */
 .page-header {
   display: flex;
   align-items: flex-start;
@@ -291,9 +283,9 @@ body {
   font-size: 0.95rem;
 }
 
-/* ==========================================
+/* 
    TYPOGRAPHY
-   ========================================== */
+    */
 h1, h2, h3 {
   color: var(--text-primary);
   line-height: 1.25;
@@ -306,9 +298,9 @@ em { font-family: var(--font-display); font-style: italic; color: var(--accent);
 
 p { color: var(--text-secondary); }
 
-/* ==========================================
+/* 
    BUTTONS
-   ========================================== */
+    */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -372,9 +364,9 @@ p { color: var(--text-secondary); }
 .btn-sm { padding: 0.45rem 1rem; font-size: 0.85rem; }
 .btn-full { width: 100%; justify-content: center; }
 
-/* ==========================================
+/* 
    FORM ELEMENTS
-   ========================================== */
+    */
 .form-group {
   margin-bottom: 1.1rem;
 }
@@ -449,9 +441,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
   font-family: var(--font-sans);
 }
 
-/* ==========================================
+/* 
    CARDS / SURFACES
-   ========================================== */
+    */
 .dash-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -472,9 +464,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 
 .span-2 { grid-column: span 2; }
 
-/* ==========================================
+/* 
    UTILITY
-   ========================================== */
+    */
 .hidden { display: none !important; }
 
 .tags-row {
@@ -531,9 +523,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
   color: var(--text-secondary);
 }
 
-/* ==========================================
+/* 
    HERO SECTION
-   ========================================== */
+    */
 .hero-section {
   padding: 3rem 0 2.5rem;
   max-width: 640px;
@@ -580,9 +572,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 }
 
 
-/* ==========================================
+/* 
    FEATURES SECTION
-   ========================================== */
+    */
 .features-section {
   margin-top: 3rem;
 }
@@ -615,9 +607,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 .feature-card h3 { font-size: 1rem; margin-bottom: 0.4rem; }
 .feature-card p { font-size: 0.88rem; line-height: 1.6; }
 
-/* ==========================================
+/* 
    CTA SECTION
-   ========================================== */
+    */
 .cta-section { margin-top: 2.5rem; }
 
 .cta-card {
@@ -632,9 +624,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 }
 .cta-card h2 { font-size: 1.3rem; margin-bottom: 0.25rem; }
 
-/* ==========================================
+/* 
    AUTH / LOGIN
-   ========================================== */
+    */
 .auth-wrapper {
   display: flex;
   align-items: center;
@@ -673,9 +665,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 .auth-hint a { color: var(--accent); font-weight: 600; text-decoration: none; }
 .auth-hint a:hover { text-decoration: underline; }
 
-/* ==========================================
+/* 
    ONBOARDING
-   ========================================== */
+    */
 .onboarding-wrapper { max-width: 680px; margin: 0 auto; }
 
 .onboarding-header {
@@ -739,9 +731,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 
 .form-actions { display: flex; justify-content: space-between; margin-top: 1.5rem; }
 
-/* ==========================================
+/* 
    PROFILE DASHBOARD
-   ========================================== */
+    */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -828,9 +820,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 .reco-item p { font-size: 0.83rem; margin-top: 0.1rem; }
 .reco-icon { font-size: 1.3rem; color: var(--accent); flex-shrink: 0; }
 
-/* ==========================================
+/* 
    MODALS — PROFILING
-   ========================================== */
+    */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -945,9 +937,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
   font-weight: 700;
 }
 
-/* ==========================================
+/* 
    JOBS PAGE
-   ========================================== */
+    */
 .jobs-filter-bar {
   display: flex;
   gap: 0.75rem;
@@ -1008,9 +1000,9 @@ select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns
 
 .job-card-action { flex-shrink: 0; }
 
-/* ==========================================
+/* 
    JOB APPLICATION PORTAL
-   ========================================== */
+    */
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -1083,9 +1075,9 @@ pre {
   overflow-x: auto;
 }
 
-/* ==========================================
+/* 
    ASSESSMENTS
-   ========================================== */
+    */
 .assessment-options-bar {
   display: flex;
   gap: 1.5rem;
@@ -1202,9 +1194,7 @@ pre {
 .result-score-num { font-size: 2rem; font-weight: 800; color: var(--accent); }
 .result-score-label { font-size: 0.8rem; color: var(--text-muted); }
 
-/* ==========================================
-   ACCESSIBILITY SETTINGS
-   ========================================== */
+/* ACCESSIBILITY SETTINGS*/
 .settings-grid { display: flex; flex-direction: column; gap: 1rem; }
 
 .setting-row {
